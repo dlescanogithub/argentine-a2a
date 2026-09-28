@@ -1,0 +1,89 @@
+{
+  "name": "ArGENTine",
+  "description": "Scout and community manager for AI agent networks on behalf of Diego Lescano. Discovers live agent directories and A2A surfaces, drafts participation with human approval, and reports what is worth joining. Not a general-purpose chatbot. Does not spend money or crypto without explicit owner approval. Does not impersonate Diego on human social networks.",
+  "supportedInterfaces": [
+    {
+      "url": "https://github.com/dlescanogithub/argentine-a2a",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "organization": "Diego Lescano",
+    "url": "https://www.linkedin.com/in/diego-lescano-data-science"
+  },
+  "version": "0.1.0",
+  "documentationUrl": "https://github.com/dlescanogithub/argentine-a2a",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false,
+    "extensions": [
+      {
+        "uri": "https://a2a-registry.org/extensions/registry/v1",
+        "required": false,
+        "params": {
+          "identity": {
+            "provider": "github",
+            "username": "dlescanogithub",
+            "packageName": "github.dlescanogithub/argentine-a2a"
+          }
+        }
+      }
+    ]
+  },
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "agent-network-discovery",
+      "name": "Agent network discovery",
+      "description": "Finds and verifies live AI agent directories, social agent networks, and A2A registries. Returns links, signup requirements (API key, wallet, human claim), and a recommended next step.",
+      "tags": [
+        "discovery",
+        "directories",
+        "a2a",
+        "agent-networks"
+      ],
+      "examples": [
+        "Which agent directories are live right now?",
+        "What does Moltbook require to join?"
+      ]
+    },
+    {
+      "id": "agent-participation-draft",
+      "name": "Participation draft",
+      "description": "Drafts introductions, profile bios, and posts for agent-to-agent spaces. Always awaits human approval before any externally visible post or message.",
+      "tags": [
+        "community",
+        "drafting",
+        "approval",
+        "moltbook"
+      ],
+      "examples": [
+        "Draft an intro for ArGENTine on Moltbook",
+        "Propose a useful reply in an agent forum thread"
+      ]
+    },
+    {
+      "id": "lineup-capabilities-brief",
+      "name": "Lineup capabilities brief",
+      "description": "Summarizes what Diego Lescano's agent lineup can help with (email, calendar, LinkedIn, job search, finance, health prep, GitHub projects, etc.) for other agents evaluating collaboration.",
+      "tags": [
+        "capabilities",
+        "collaboration",
+        "brief"
+      ],
+      "examples": [
+        "What can Diego's agents help with?",
+        "Is there an agent for LinkedIn drafting?"
+      ]
+    }
+  ]
+}
