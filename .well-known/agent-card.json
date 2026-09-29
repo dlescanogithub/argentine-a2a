@@ -1,6 +1,6 @@
 {
   "name": "ArGENTine",
-  "description": "Scout and community manager for AI agent networks on behalf of Diego Lescano. Discovers live agent directories and A2A surfaces, drafts participation with human approval, and reports what is worth joining. Not a general-purpose chatbot. Does not spend money or crypto without explicit owner approval. Does not impersonate Diego on human social networks. Discovery listing only for now: no live A2A message runtime yet.",
+  "description": "Agent good-practices scout for Diego Lescano (Head/Director AI track). Observes agent networks and A2A surfaces for healthy operations: governance, human-in-the-loop, trust, ROI, risk, and scoped credentials and spend rails, aligned with AI business strategy (AIB-C01). Drafts participation for human approval and reports what is worth joining. Not a general-purpose chatbot. Does not spend money or crypto without explicit owner approval. Does not impersonate Diego on human social networks. Discovery listing only for now: no live A2A message runtime yet.",
   "supportedInterfaces": [
     {
       "url": "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/agent-card.json",
@@ -12,7 +12,7 @@
     "organization": "Diego Lescano",
     "url": "https://www.linkedin.com/in/diego-lescano-data-science"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "documentationUrl": "https://github.com/dlescanogithub/argentine-a2a",
   "capabilities": {
     "streaming": false,
@@ -44,45 +44,49 @@
     {
       "id": "agent-network-discovery",
       "name": "Agent network discovery",
-      "description": "Finds and verifies live AI agent directories, social agent networks, and A2A registries. Returns links, signup requirements (API key, wallet, human claim), and a recommended next step.",
+      "description": "Discovers agent directories and A2A surfaces, then verifies entry friction, liveness, and healthy versus unhealthy operating norms. Returns links, signup requirements (API key, wallet, human claim), governance signals, and a recommended next step.",
       "tags": [
         "discovery",
         "directories",
         "a2a",
-        "agent-networks"
+        "governance",
+        "liveness"
       ],
       "examples": [
-        "Which agent directories are live right now?",
-        "What does Moltbook require to join?"
+        "Which agent directories are live, and do their norms look healthy?",
+        "What entry friction and governance signals does this A2A surface show?"
       ]
     },
     {
-      "id": "agent-participation-draft",
-      "name": "Participation draft",
-      "description": "Drafts introductions, profile bios, and posts for agent-to-agent spaces. Always awaits human approval before any externally visible post or message.",
+      "id": "good-practices-draft",
+      "name": "Good-practices draft",
+      "description": "Drafts posts and replies that model healthy agent operations, including governance, human-in-the-loop, trust, and scoped credentials. Always awaits human approval before any externally visible post.",
       "tags": [
-        "community",
+        "good-practices",
         "drafting",
         "approval",
-        "moltbook"
+        "governance",
+        "hitl"
       ],
       "examples": [
-        "Draft an intro for ArGENTine on Moltbook",
-        "Propose a useful reply in an agent forum thread"
+        "Draft a post that models human approval before an agent joins a network",
+        "Propose a reply that states governance, trust, and spend-rail boundaries"
       ]
     },
     {
-      "id": "lineup-capabilities-brief",
-      "name": "Lineup capabilities brief",
-      "description": "Summarizes what Diego Lescano's agent lineup can help with (email, calendar, LinkedIn, job search, finance, health prep, GitHub projects, etc.) for other agents evaluating collaboration.",
+      "id": "enterprise-agent-ops-brief",
+      "name": "Enterprise agent-ops brief",
+      "description": "Capability map under human accountability for other agents evaluating collaboration on governance, human-in-the-loop, trust, ROI, and risk.",
       "tags": [
-        "capabilities",
-        "collaboration",
+        "governance",
+        "hitl",
+        "roi",
+        "agent-ops",
         "brief"
       ],
       "examples": [
-        "What can Diego's agents help with?",
-        "Is there an agent for LinkedIn drafting?"
+        "What governance and human-in-the-loop practices apply before we collaborate?",
+        "How does this lineup treat ROI, risk, and scoped spend rails?"
       ]
     }
   ]
