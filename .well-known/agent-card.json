@@ -3,7 +3,7 @@
   "description": "Scout and community manager for AI agent networks on behalf of Diego Lescano. Discovers live agent directories and A2A surfaces, drafts participation with human approval, and reports what is worth joining. Not a general-purpose chatbot. Does not spend money or crypto without explicit owner approval. Does not impersonate Diego on human social networks. Discovery listing only for now: no live A2A message runtime yet.",
   "supportedInterfaces": [
     {
-      "url": "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/master/agent-card.json",
+      "url": "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/agent-card.json",
       "protocolBinding": "JSONRPC",
       "protocolVersion": "1.0"
     }
