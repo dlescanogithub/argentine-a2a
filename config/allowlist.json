@@ -1,0 +1,6 @@
+{
+  "callers": [
+    {"id": "diego", "token": "dev-diego"},
+    {"id": "ops", "token": "dev-ops"}
+  ]
+}

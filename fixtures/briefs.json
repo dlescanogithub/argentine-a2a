@@ -1,0 +1,131 @@
+{
+  "now": "2026-09-30T12:00:00Z",
+  "cases": [
+    {
+      "name": "low-complete",
+      "request": {
+        "brief": "digest: Read-only summary of local decisions for the caller.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "low",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "GO", "fails": []}
+    },
+    {
+      "name": "medium-complete",
+      "request": {
+        "brief": "digest: Read-only summary of local decisions for the caller.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "medium",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "GO", "fails": []}
+    },
+    {
+      "name": "high-complete",
+      "request": {
+        "brief": "HITL: approved\napproved_by: Diego Lescano\napproved_until: 2099-01-01T00:00:00Z\ndigest: Reply to the caller with the decision count only. No post, spend, or tool execution.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "high",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "GO", "fails": []}
+    },
+    {
+      "name": "high-missing",
+      "request": {
+        "brief": "Review whether to draft a participation note.",
+        "blast_class": "high",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {
+        "decision": "NEED_HUMAN",
+        "fails": ["hitl", "approved_until", "digest", "kill_path"]
+      }
+    },
+    {
+      "name": "brief-only",
+      "request": {
+        "brief": "Look at the local log."
+      },
+      "expect": {
+        "decision": "NEED_HUMAN",
+        "fails": ["blast_class", "hitl", "digest", "egress", "kill_path"]
+      }
+    },
+    {
+      "name": "low-approved-no-ttl",
+      "request": {
+        "brief": "HITL: approved\napproved_by: Diego Lescano\ndigest: Read-only summary of local decisions for the caller.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "low",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "NEED_HUMAN", "fails": ["approved_until"]}
+    },
+    {
+      "name": "unknown-tool",
+      "request": {
+        "brief": "digest: Read-only summary of local decisions for the caller.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "low",
+        "tools": ["calendar"],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "NEED_HUMAN", "fails": ["least_privilege"]}
+    },
+    {
+      "name": "high-reject",
+      "request": {
+        "brief": "HITL: rejected\napproved_until: 2099-01-01T00:00:00Z\ndigest: Caller asked to post the draft and email subscribers.\nkill_path: none\nside_effects: post\n",
+        "blast_class": "high",
+        "tools": ["post", "send_mail"],
+        "egress": ["moltbook", "mail"]
+      },
+      "expect": {
+        "decision": "NO_GO",
+        "fails": ["hitl", "egress", "kill_path", "least_privilege", "side_effects"]
+      }
+    },
+    {
+      "name": "high-expired",
+      "request": {
+        "brief": "HITL: approved\napproved_by: Diego Lescano\napproved_until: 2026-01-01T00:00:00Z\ndigest: Reply to the caller with the decision count only. No post, spend, or tool execution.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "high",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "NO_GO", "fails": ["approved_until"]}
+    },
+    {
+      "name": "low-wide-egress",
+      "request": {
+        "brief": "digest: Read-only summary of local decisions for the caller.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "low",
+        "tools": [],
+        "egress": ["web", "moltbook"]
+      },
+      "expect": {"decision": "NO_GO", "fails": ["egress", "side_effects"]}
+    },
+    {
+      "name": "low-privileged-tool",
+      "request": {
+        "brief": "digest: Read-only summary of local decisions for the caller.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "low",
+        "tools": ["send_mail"],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "NO_GO", "fails": ["least_privilege", "side_effects"]}
+    },
+    {
+      "name": "blast-conflict",
+      "request": {
+        "brief": "blast_class: high\nHITL: approved\napproved_by: Diego Lescano\napproved_until: 2099-01-01T00:00:00Z\ndigest: Declared blast class does not match the brief marker.\nkill_path: Diego off-switch file var/diego.off\nside_effects: none\n",
+        "blast_class": "low",
+        "tools": [],
+        "egress": ["reply"]
+      },
+      "expect": {"decision": "NO_GO", "fails": ["blast_class"]}
+    }
+  ]
+}

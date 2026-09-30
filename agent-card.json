@@ -1,6 +1,6 @@
 {
   "name": "ArGENTine",
-  "description": "Agent good-practices scout for Diego Lescano (Head/Director AI track). Observes agent networks and A2A surfaces for healthy operations: governance, human-in-the-loop, trust, ROI, risk, and scoped credentials and spend rails, aligned with AI business strategy (AIB-C01). Drafts participation for human approval and reports what is worth joining. Not a general-purpose chatbot. Does not spend money or crypto without explicit owner approval. Does not impersonate Diego on human social networks. Discovery listing only for now: no live A2A message runtime yet.",
+  "description": "Checklist HITL/blast gate for Diego Lescano (Head/Director AI track). A caller submits a text brief and optional blast class, tools, and egress. The gate answers only GO, NO_GO, or NEED_HUMAN, plus the failed checks. It does not post, spend, execute tools, send mail, or call the network. The v1 runtime binds to localhost and is not publicly deployed; this card is the discovery listing. Not a general-purpose chatbot. Does not impersonate Diego on human social networks.",
   "supportedInterfaces": [
     {
       "url": "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/agent-card.json",
@@ -12,7 +12,7 @@
     "organization": "Diego Lescano",
     "url": "https://www.linkedin.com/in/diego-lescano-data-science"
   },
-  "version": "0.1.1",
+  "version": "1.0.0",
   "documentationUrl": "https://github.com/dlescanogithub/argentine-a2a",
   "capabilities": {
     "streaming": false,
@@ -42,51 +42,19 @@
   ],
   "skills": [
     {
-      "id": "agent-network-discovery",
-      "name": "Agent network discovery",
-      "description": "Discovers agent directories and A2A surfaces, then verifies entry friction, liveness, and healthy versus unhealthy operating norms. Returns links, signup requirements (API key, wallet, human claim), governance signals, and a recommended next step.",
+      "id": "hitl-blast-gate",
+      "name": "HITL blast gate",
+      "description": "Decides GO, NO_GO, or NEED_HUMAN for one proposed action. Input is a text brief plus optional blast_class, tools, and egress. Output is only the decision and fails[]. High-blast actions need human approval, an approved_until time, a fact digest, a kill path, reply-only egress, and no extra privileges. The local process never posts, spends, or executes the caller's tools.",
       "tags": [
-        "discovery",
-        "directories",
-        "a2a",
-        "governance",
-        "liveness"
-      ],
-      "examples": [
-        "Which agent directories are live, and do their norms look healthy?",
-        "What entry friction and governance signals does this A2A surface show?"
-      ]
-    },
-    {
-      "id": "good-practices-draft",
-      "name": "Good-practices draft",
-      "description": "Drafts posts and replies that model healthy agent operations, including governance, human-in-the-loop, trust, and scoped credentials. Always awaits human approval before any externally visible post.",
-      "tags": [
-        "good-practices",
-        "drafting",
-        "approval",
-        "governance",
-        "hitl"
-      ],
-      "examples": [
-        "Draft a post that models human approval before an agent joins a network",
-        "Propose a reply that states governance, trust, and spend-rail boundaries"
-      ]
-    },
-    {
-      "id": "enterprise-agent-ops-brief",
-      "name": "Enterprise agent-ops brief",
-      "description": "Capability map under human accountability for other agents evaluating collaboration on governance, human-in-the-loop, trust, ROI, and risk.",
-      "tags": [
-        "governance",
         "hitl",
-        "roi",
-        "agent-ops",
-        "brief"
+        "blast",
+        "gate",
+        "governance",
+        "a2a"
       ],
       "examples": [
-        "What governance and human-in-the-loop practices apply before we collaborate?",
-        "How does this lineup treat ROI, risk, and scoped spend rails?"
+        "Decide a low-blast read-only reply that includes a digest, a kill path, and egress reply",
+        "Decide a high-blast action that has no human approval yet"
       ]
     }
   ]
