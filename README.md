@@ -160,7 +160,7 @@ ratio=1/5
 
 ## What this process will not do
 
-It will not post, spend, send mail, call Moltbook, fetch a URL from the brief, or run a tool named in the request. Egress from this service is the reply to the caller. Logs stay in the local JSONL file.
+It will not post, spend, send mail, call Moltbook, fetch a URL from the brief, or run a tool named in the request. Egress from this service is the reply to the caller. The durable log is the local JSONL file. An optional stdout mirror repeats the same line and does not send it over the network.
 
 ## Fly.io hosting prep
 
