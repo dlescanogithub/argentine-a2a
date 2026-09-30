@@ -4,7 +4,7 @@ Local [A2A](https://a2a-protocol.org/) v1 checklist gate for Diego Lescano (Head
 
 A caller sends a proposed action: a text brief, plus optional `blast_class`, `tools`, and `egress`. The gate answers with a decision and the gaps. It does not post, spend, execute the caller's tools, send mail, or call the network. The only outputs are the HTTP reply and a local JSONL log.
 
-This is not a chatbot. There is no public deploy. GitHub Pages serves the discovery card only.
+This is not a chatbot. GitHub Pages serves the discovery card only. Fly hosting files are in the repo for when Diego says go-live. Nothing here publishes a public gate URL.
 
 ## Run locally
 
@@ -14,7 +14,7 @@ From the repository root, with Python 3.12 and no extra packages:
 python3 -m argentine serve
 ```
 
-The process listens on `http://127.0.0.1:8787` and refuses any other bind address. Stop it with Ctrl-C.
+By default the process listens on `http://127.0.0.1:8787`. That loopback default stays in place for local runs. Pass `--bind 0.0.0.0` or set `ARGENTINE_BIND=0.0.0.0` when a proxy on the same machine must reach the process. Any other address is refused. Stop it with Ctrl-C.
 
 ```bash
 curl -s http://127.0.0.1:8787/v1/gate \
@@ -33,7 +33,7 @@ Check the scored fixtures:
 python3 -m argentine decide
 ```
 
-Useful flags: `--port`, `--allowlist`, `--log`, `--off-file`, `--rate-limit`. Defaults are `config/allowlist.json`, `var/gate-log.jsonl`, and `var/diego.off` inside this repository.
+Useful flags: `--port`, `--bind`, `--allowlist`, `--log`, `--off-file`, `--rate-limit`, `--stdout-log`. Defaults are loopback, `config/allowlist.json`, `var/gate-log.jsonl`, and `var/diego.off` inside this repository. `ARGENTINE_ALLOWLIST`, when set, overrides the allowlist file.
 
 ## Request and response
 
@@ -129,13 +129,15 @@ Override the path with `--allowlist`.
 
 ## Gate log
 
-Every gate request appends one line to `var/gate-log.jsonl` (gitignored). The brief is stored only as a SHA-256 hash.
+Every gate request appends one line to `var/gate-log.jsonl` (gitignored). The brief is stored only as a SHA-256 hash. Pass `--stdout-log` or `ARGENTINE_STDOUT_LOG=1` to mirror that same line to stdout. Stdout is a mirror for a platform log collector. The process does not post logs anywhere.
 
 ```json
 {"id":"...","ts":"...","caller":"diego","brief_hash":"sha256:...","blast_class":"low","decision":"GO","fails":[],"human_reject":false,"notes":"blast_class=PASS ..."}
 ```
 
 `human_reject` is true only when a person rejected the proposal. Other `NO_GO` rows stay false.
+
+When the active file passes 5 MiB (`ARGENTINE_LOG_MAX_BYTES`, `--log-max-bytes`), it rotates to `gate-log.jsonl.1`, then `.2`, then `.3` (`ARGENTINE_LOG_BACKUPS`, default 3). The oldest file is deleted. `count` and `GET /v1/gate/stats` include the active file and those rotated siblings.
 
 Count `N` human rejections over `M` decisions:
 
@@ -160,11 +162,78 @@ ratio=1/5
 
 It will not post, spend, send mail, call Moltbook, fetch a URL from the brief, or run a tool named in the request. Egress from this service is the reply to the caller. Logs stay in the local JSONL file.
 
+## Fly.io hosting prep
+
+`Dockerfile`, `docker/entrypoint.sh`, and `fly.toml` are ready for a later deploy. They do not publish a URL. Do not run `fly deploy`, change DNS, or edit the agent card until Diego says go-live.
+
+Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.toml` set `ARGENTINE_BIND=0.0.0.0` and `ARGENTINE_PORT=8080` so Fly's HTTPS proxy can reach the process. `GET /health` is the Fly check. It stays HTTP 200 when the gate is shut, and the body field `diego_off` reports the switch, so Fly does not restart-loop on the off-switch.
+
+### When Diego OKs go-live
+
+1. `fly auth login`
+2. Change `app` and `primary_region` in `fly.toml` if the defaults are wrong. The volume region must match.
+3. `fly apps create argentine-a2a`
+4. `fly volumes create argentine_gate_log --region iad --size 1`
+5. Set the secrets below. Leave `ARGENTINE_DIEGO_OFF=1` until the moment requests should be accepted.
+6. `fly deploy`
+
+That deploy is what would create the app's `fly.dev` hostname. Do not copy that hostname into the agent card.
+
+### Secrets
+
+```bash
+fly secrets set ARGENTINE_ALLOWLIST='{"callers":[{"id":"diego","token":"REPLACE_DIEGO"},{"id":"ops","token":"REPLACE_OPS"}]}'
+fly secrets set ARGENTINE_DIEGO_OFF=1
+```
+
+| Key | Role |
+| --- | --- |
+| `ARGENTINE_ALLOWLIST` | JSON allowlist. Required on Fly. Overrides `config/allowlist.json`. |
+| `ARGENTINE_DIEGO_OFF` | `1`, `true`, `yes`, or `on` shuts the gate. `0` leaves this switch open. |
+
+`fly.toml` sets `ARGENTINE_REQUIRE_ALLOWLIST_SECRET=1`. If `ARGENTINE_ALLOWLIST` is missing, the process exits instead of accepting the dev tokens in the image. `fly secrets set` restarts the machine. Tokens are not written to the log.
+
+These are the only secrets. Port, bind, log path, and rotation limits are plain `[env]` values in `fly.toml`, not secrets.
+
+### Diego off-switch on Fly
+
+Either control shuts the gate. Open both before the gate will accept a decision.
+
+Secret, which restarts the machine:
+
+```bash
+fly secrets set ARGENTINE_DIEGO_OFF=1
+fly secrets set ARGENTINE_DIEGO_OFF=0
+```
+
+File on the volume, which applies on the next request without a restart:
+
+```bash
+fly ssh console -C "touch /data/diego.off"
+fly ssh console -C "rm -f /data/diego.off"
+```
+
+The file path is `ARGENTINE_DIEGO_OFF_FILE` (`/data/diego.off` in `fly.toml`).
+
+### Gate log on Fly
+
+Each line is written to `/data/gate-log.jsonl` on the `argentine_gate_log` volume and mirrored to stdout because `ARGENTINE_STDOUT_LOG=1`. Read the mirror with `fly logs`. The process does not ship logs over HTTP.
+
+Rotation keeps the active file and three backups (about 20 MiB) on the volume. The oldest backup is deleted. Stdout history follows the Fly org's log retention. The volume is the copy you control. Count both copies of the file set from a machine shell:
+
+```bash
+fly ssh console -C "cd /app && python3 -m argentine count --log /data/gate-log.jsonl"
+```
+
 ## Discovery card
 
-`agent-card.json` and `.well-known/agent-card.json` are the public listing. Their interface URL points at the card itself. It is not a live message endpoint. Do not register a public runtime until Diego says so.
+`agent-card.json` and `.well-known/agent-card.json` are the public listing. Their interface URL points at the card itself:
 
-The local process serves its own card at `http://127.0.0.1:8787/.well-known/agent-card.json` with a loopback URL.
+`https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/agent-card.json`
+
+That URL is unchanged by the Fly prep. It is not a live message endpoint. Do not point it at a Fly hostname.
+
+The local process serves its own card at `http://127.0.0.1:<port>/.well-known/agent-card.json` with a loopback URL, including when the listener is `0.0.0.0`.
 
 ## License
 

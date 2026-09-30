@@ -1,4 +1,4 @@
-"""Local HTTP gate. Binds to 127.0.0.1 only and writes a JSONL log.
+"""HTTP gate. Local runs bind 127.0.0.1. Fly sets ARGENTINE_BIND=0.0.0.0.
 
 Caller tools are classified by the rubric and never executed.
 The process does not open outbound connections.
@@ -7,6 +7,7 @@ The process does not open outbound connections.
 from __future__ import annotations
 
 import json
+import signal
 import sys
 import threading
 import time
@@ -27,6 +28,7 @@ DEFAULT_TIMEOUT_S = 15.0
 DEFAULT_MAX_CONCURRENT = 2
 DEFAULT_RATE_LIMIT = 10
 DEFAULT_RATE_WINDOW_S = 3600.0
+ALLOWED_BINDS = frozenset({"127.0.0.1", "0.0.0.0"})
 
 
 class RateLimiter:
@@ -300,28 +302,44 @@ def make_handler(app: GateApp):
     return Handler
 
 
-def bind(app: GateApp, port: int = 8787) -> ThreadingHTTPServer:
-    """Listen on 127.0.0.1 only. Does not accept a public bind address."""
+def bind(app: GateApp, port: int = 8787, host: str = "127.0.0.1") -> ThreadingHTTPServer:
+    """Listen on loopback, or on 0.0.0.0 when a local proxy such as Fly must connect.
+
+    Any other address is refused. Binding 0.0.0.0 does not publish a hostname.
+    """
+    host = host.strip()
+    if host not in ALLOWED_BINDS:
+        raise RuntimeError("refusing to bind anything other than 127.0.0.1 or 0.0.0.0")
     handler = make_handler(app)
-    httpd = ThreadingHTTPServer(("127.0.0.1", port), handler)
+    httpd = ThreadingHTTPServer((host, port), handler)
     httpd.daemon_threads = True
     bound_host, bound_port = httpd.server_address[:2]
-    if bound_host != "127.0.0.1":
+    if bound_host not in ALLOWED_BINDS:
         httpd.server_close()
-        raise RuntimeError("refusing to bind anything other than 127.0.0.1")
+        raise RuntimeError("refusing to bind anything other than 127.0.0.1 or 0.0.0.0")
     app.port = bound_port
     return httpd
 
 
-def serve(app: GateApp, port: int = 8787) -> None:
-    httpd = bind(app, port)
+def serve(app: GateApp, port: int = 8787, host: str = "127.0.0.1") -> None:
+    httpd = bind(app, port, host)
+    scope = "loopback" if host == "127.0.0.1" else "all interfaces for a local proxy"
     print(
-        f"ArGENTine gate listening on http://127.0.0.1:{app.port} (local only)",
+        f"ArGENTine gate listening on http://{host}:{app.port} ({scope})",
         file=sys.stderr,
     )
     print(f"log {app.log.path}", file=sys.stderr)
     print(f"diego off-switch file {app.kill.path}", file=sys.stderr)
+    previous = signal.getsignal(signal.SIGTERM)
+
+    def _stop(_signum, _frame):
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, _stop)
     try:
         httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
     finally:
+        signal.signal(signal.SIGTERM, previous)
         httpd.server_close()

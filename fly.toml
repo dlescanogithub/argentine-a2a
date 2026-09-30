@@ -1,0 +1,41 @@
+# Hosting prep only. Do not run `fly deploy` until Diego says go-live.
+# This file does not publish a hostname. Leave the agent card URL unchanged.
+
+app = "argentine-a2a"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  ARGENTINE_BIND = "0.0.0.0"
+  ARGENTINE_PORT = "8080"
+  ARGENTINE_LOG_PATH = "/data/gate-log.jsonl"
+  ARGENTINE_DIEGO_OFF_FILE = "/data/diego.off"
+  ARGENTINE_STDOUT_LOG = "1"
+  ARGENTINE_LOG_MAX_BYTES = "5242880"
+  ARGENTINE_LOG_BACKUPS = "3"
+  ARGENTINE_REQUIRE_ALLOWLIST_SECRET = "1"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "15s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[mounts]]
+  source = "argentine_gate_log"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

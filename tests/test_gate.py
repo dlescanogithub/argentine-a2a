@@ -303,6 +303,49 @@ class GateTest(unittest.TestCase):
         self.assertEqual(health_body["max_concurrent"], 2)
         self.assertEqual(health_body["timeout_seconds"], 15)
 
+    def test_bind_all_interfaces_for_a_proxy(self) -> None:
+        app = self.make_app()
+        httpd = bind(app, 0, "0.0.0.0")
+        self.assertEqual(httpd.server_address[0], "0.0.0.0")
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(httpd.shutdown)
+        self.addCleanup(httpd.server_close)
+        port = httpd.server_address[1]
+        conn = HTTPConnection("127.0.0.1", port, timeout=5)
+        conn.request("GET", "/health")
+        body = json.loads(conn.getresponse().read().decode("utf-8"))
+        conn.close()
+        self.assertTrue(body["ok"])
+        card = HTTPConnection("127.0.0.1", port, timeout=5)
+        card.request("GET", "/.well-known/agent-card.json")
+        served = json.loads(card.getresponse().read().decode("utf-8"))
+        card.close()
+        url = served["supportedInterfaces"][0]["url"]
+        self.assertTrue(url.startswith("http://127.0.0.1:"))
+        self.assertNotIn("fly.dev", url)
+
+    def test_bind_refuses_other_addresses(self) -> None:
+        with self.assertRaises(RuntimeError):
+            bind(self.make_app(), 0, "192.168.1.9")
+
+    def test_allowlist_env_overrides_file(self) -> None:
+        allow = Allowlist(
+            path=self.allow_path,
+            env={
+                "ARGENTINE_ALLOWLIST": json.dumps(
+                    {"callers": [{"id": "ada", "token": "secret-token"}]}
+                )
+            },
+        )
+        app = self.make_app()
+        app.allowlist = allow
+        status, _body = self.post(app, GO_BODY, token="dev-diego")
+        self.assertEqual(status, 401)
+        status, body = self.post(app, GO_BODY, token="secret-token")
+        self.assertEqual(body["decision"], "GO")
+        self.assertEqual(json.loads(self.log_path.read_text().splitlines()[-1])["caller"], "ada")
+
 
 if __name__ == "__main__":
     unittest.main()
