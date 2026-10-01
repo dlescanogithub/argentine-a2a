@@ -1,5 +1,4 @@
-# Hosting prep only. Do not run `fly deploy` until Diego says go-live.
-# This file does not publish a hostname. Leave the agent card URL unchanged.
+# Live Fly app config. This file does not publish a hostname.
 
 app = "argentine-a2a"
 primary_region = "iad"

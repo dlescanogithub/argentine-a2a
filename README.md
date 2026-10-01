@@ -1,10 +1,10 @@
 # ArGENTine
 
-Local [A2A](https://a2a-protocol.org/) v1 checklist gate for Diego Lescano (Head/Director AI track).
+[A2A](https://a2a-protocol.org/) v1 checklist gate for Diego Lescano (Head/Director AI track).
 
 A caller sends a proposed action: a text brief, plus optional `blast_class`, `tools`, and `egress`. The gate answers with a decision and the gaps. It does not post, spend, execute the caller's tools, send mail, or call the network. The only outputs are the HTTP reply and a local JSONL log.
 
-This is not a chatbot. GitHub Pages serves the discovery card only. Fly hosting files are in the repo for when Diego says go-live. Nothing here publishes a public gate URL.
+This is not a chatbot. The gate is deployed at https://argentine-a2a.fly.dev. GitHub Pages serves the discovery card. Callers need an allowlist Bearer token. Diego can shut the gate with `ARGENTINE_DIEGO_OFF` or `diego.off`.
 
 ## Run locally
 
@@ -164,11 +164,11 @@ It will not post, spend, send mail, call Moltbook, fetch a URL from the brief, o
 
 ## Fly.io hosting prep
 
-`Dockerfile`, `docker/entrypoint.sh`, and `fly.toml` are ready for a later deploy. They do not publish a URL. Do not run `fly deploy`, change DNS, or edit the agent card until Diego says go-live.
+`Dockerfile`, `docker/entrypoint.sh`, and `fly.toml` do not hardcode a public URL. The gate is deployed at https://argentine-a2a.fly.dev. Do not run `fly deploy` or change DNS unless Diego asks for another release.
 
 Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.toml` set `ARGENTINE_BIND=0.0.0.0` and `ARGENTINE_PORT=8080` so Fly's HTTPS proxy can reach the process. `GET /health` is the Fly check. It stays HTTP 200 when the gate is shut, and the body field `diego_off` reports the switch, so Fly does not restart-loop on the off-switch.
 
-### When Diego OKs go-live
+### Go-live steps
 
 1. `fly auth login`
 2. Change `app` and `primary_region` in `fly.toml` if the defaults are wrong. The volume region must match.
@@ -177,7 +177,7 @@ Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.t
 5. Set the secrets below. Leave `ARGENTINE_DIEGO_OFF=1` until the moment requests should be accepted.
 6. `fly deploy`
 
-That deploy is what would create the app's `fly.dev` hostname. Do not copy that hostname into the agent card.
+That deploy created the hostname https://argentine-a2a.fly.dev. The agent card interface URL points at that gate.
 
 ### Secrets
 
@@ -227,11 +227,11 @@ fly ssh console -C "cd /app && python3 -m argentine count --log /data/gate-log.j
 
 ## Discovery card
 
-`agent-card.json` and `.well-known/agent-card.json` are the public listing. Their interface URL points at the card itself:
+`agent-card.json` and `.well-known/agent-card.json` are the public listing. Their interface URL points at the live gate:
 
-`https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/agent-card.json`
+`https://argentine-a2a.fly.dev`
 
-That URL is unchanged by the Fly prep. It is not a live message endpoint. Do not point it at a Fly hostname.
+That URL is the JSON-RPC endpoint (`protocolBinding` JSONRPC, `protocolVersion` 1.0). Callers require allowlist Bearer auth. The gate answers only GO, NO_GO, or NEED_HUMAN, and does not post, spend, execute tools, send mail, or call the network. Diego can shut it with `ARGENTINE_DIEGO_OFF` or `diego.off`.
 
 The local process serves its own card at `http://127.0.0.1:<port>/.well-known/agent-card.json` with a loopback URL, including when the listener is `0.0.0.0`.
 

@@ -1,4 +1,4 @@
-"""Fly hosting prep: bind flag, secrets, log rotation, and no public URL."""
+"""Fly hosting: bind flag, secrets, log rotation, and the public gate URL."""
 
 from __future__ import annotations
 
@@ -14,17 +14,20 @@ from argentine.__main__ import main
 from argentine.auth import Allowlist, AllowlistError
 from argentine.logstore import JsonlLog, build_record, count_decisions
 
-CARD_URL = "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/agent-card.json"
+CARD_URL = "https://argentine-a2a.fly.dev"
 NOW = datetime(2026, 9, 30, 12, 0, tzinfo=timezone.utc)
 
 
 class FlyPrepTest(unittest.TestCase):
-    def test_agent_card_url_is_unchanged(self) -> None:
+    def test_agent_card_points_at_the_fly_gate(self) -> None:
         for relative in ("agent-card.json", ".well-known/agent-card.json"):
             text = (ROOT / relative).read_text(encoding="utf-8")
             card = json.loads(text)
-            self.assertEqual(card["supportedInterfaces"][0]["url"], CARD_URL)
-            self.assertNotIn("fly.dev", text)
+            interface = card["supportedInterfaces"][0]
+            self.assertEqual(interface["url"], CARD_URL)
+            self.assertEqual(interface["protocolBinding"], "JSONRPC")
+            self.assertEqual(interface["protocolVersion"], "1.0")
+            self.assertNotIn("raw.githubusercontent.com", interface["url"])
             self.assertNotIn("0.0.0.0", text)
 
     def test_fly_artifacts_do_not_publish_a_url(self) -> None:
