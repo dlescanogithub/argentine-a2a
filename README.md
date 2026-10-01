@@ -10,6 +10,8 @@ Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose
 
 Hashed files for that date are in [docs/evidence/2026-10-01/](docs/evidence/2026-10-01/) ([README](docs/evidence/2026-10-01/README.md), [SUMMARY.json](docs/evidence/2026-10-01/SUMMARY.json), [SHA256SUMS](docs/evidence/2026-10-01/SHA256SUMS)): drill-time authenticated stats were 2/16, and this export’s live log/stats are 2/66.
 
+How the live gate is operated (token rotation, off-switch custodian, and Fly fail-closed) is in [docs/OPS.md](docs/OPS.md).
+
 ## Run locally
 
 From the repository root, with Python 3.12 and no extra packages:
