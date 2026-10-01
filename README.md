@@ -191,9 +191,9 @@ It will not post, spend, send mail, call Moltbook, fetch a URL from the brief, o
 
 ## Fly.io hosting prep
 
-`Dockerfile`, `docker/entrypoint.sh`, and `fly.toml` do not hardcode a public URL. The gate is deployed at https://argentine-a2a.fly.dev. Do not run `fly deploy` or change DNS unless Diego asks for another release.
+`Dockerfile`, `docker/entrypoint.sh`, `fly.toml`, and `.railway/railway.ts` do not hardcode a public URL. The gate is deployed at https://argentine-a2a.fly.dev. Do not run `fly deploy` or change DNS unless Diego asks for another release. Railway is an alternate host for the same image, not a second public URL. See [docs/RAILWAY.md](docs/RAILWAY.md).
 
-Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.toml` set `ARGENTINE_BIND=0.0.0.0` and `ARGENTINE_PORT=8080` so Fly's HTTPS proxy can reach the process. `GET /health` is the Fly check. It stays HTTP 200 when the gate is shut, and the body field `diego_off` reports the switch, so Fly does not restart-loop on the off-switch.
+Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.toml` set `ARGENTINE_BIND=0.0.0.0` and `ARGENTINE_PORT=8080` so Fly's HTTPS proxy can reach the process. `docker/entrypoint.sh` listens on `$PORT` when that variable is set (Railway injects it) and otherwise keeps `ARGENTINE_PORT`. `GET /health` is the Fly check and the Railway check. It stays HTTP 200 when the gate is shut, and the body field `diego_off` reports the switch, so the platform does not restart-loop on the off-switch.
 
 ### Go-live steps
 
