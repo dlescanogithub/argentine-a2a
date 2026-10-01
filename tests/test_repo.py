@@ -117,7 +117,10 @@ class RepoTest(unittest.TestCase):
             "https://argentine-a2a.fly.dev/health",
             "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
             "github.dlescanogithub/argentine-a2a",
-            "TBD",
+            "human_reject count",
+            "2/16",
+            "decisions=16",
+            "2026-09-30 23:32 ART",
             "last kill-drill timestamp",
         ):
             self.assertIn(phrase, evidence)

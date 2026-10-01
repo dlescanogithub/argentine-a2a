@@ -6,7 +6,7 @@ A caller sends a proposed action: a text brief, plus optional `blast_class`, `to
 
 This is not a chatbot. The public A2A gate is live at https://argentine-a2a.fly.dev, behind an allowlist and a remote Diego off-switch. The public URL is not the trust boundary. Callers need an allowlist Bearer token. Diego can shut the gate with `ARGENTINE_DIEGO_OFF` or `diego.off`.
 
-Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose, allowlist, kill path, timeout and concurrency, decision types, how to read `human_reject`, and the public health and registry pointers. Live decision counts in that note are placeholders until Diego records a drill.
+Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose, allowlist, kill path, timeout and concurrency, decision types, how to read `human_reject`, and the public health and registry pointers. The 2026-10-01 evidence snapshot records the kill drill: `human_reject=2`, `decisions=16`, `ratio=2/16`, restore complete 2026-09-30 23:32 ART.
 
 ## Run locally
 

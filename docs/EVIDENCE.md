@@ -107,22 +107,20 @@ The registry page is updated by the listing owner separately from this file. Cap
 
 ## Evidence snapshot
 
-**Dated 2026-10-01.** The four operational fields below are placeholders. Diego's ops fills the real numbers after a kill drill. They are not measured production totals.
+**Dated 2026-10-01.** Kill drill PASS on the night of 2026-09-30 into 2026-10-01 (America/Buenos_Aires). The counts are the authenticated stats after restore. Times below are ART.
 
 | Item | Value |
 | --- | --- |
-| human_reject count | **TBD** — placeholder, fill after a drill |
-| total decisions | **TBD** — placeholder, fill after a drill |
-| ratio (`human_reject` / decisions) | **TBD** — placeholder, fill after a drill |
-| last kill-drill timestamp | **TBD** — placeholder, fill after a drill |
+| human_reject count | 2 |
+| total decisions | 16 |
+| ratio (`human_reject` / decisions) | 2/16 |
+| last kill-drill timestamp | 2026-09-30 23:32 ART (restore complete) |
 
-Public health observed on 2026-10-01 (UTC) from `GET https://argentine-a2a.fly.dev/health`, with no credentials:
+| Step | Time (ART) | Result |
+| --- | --- | --- |
+| Baseline `GET /health` | 2026-09-30 ~23:29:51 | `diego_off` false |
+| Off set `ARGENTINE_DIEGO_OFF=1`; off confirmed | 2026-09-30 ~23:31:05 | `diego_off` true |
+| Reject smoke `POST /v1/gate` | 2026-09-30 ~23:31:21 | HTTP 503 `{"decision":"NO_GO","fails":["diego_off"]}` |
+| Restore `ARGENTINE_DIEGO_OFF=0`; on confirmed | 2026-09-30 ~23:32:42 | `diego_off` false; GO smoke OK |
 
-| Field | Observed value |
-| --- | --- |
-| `ok` | `true` |
-| `diego_off` | `true` |
-| `max_concurrent` | `2` |
-| `timeout_seconds` | `15` |
-
-That row is the public health body at observation time. `diego_off: true` means the remote off-switch was engaged, so decision calls were being refused. It is not a decision count and it is not a kill-drill timestamp. Do not copy the fixture ratio `1/5` into the TBD cells.
+After restore, authenticated stats were `human_reject=2`, `decisions=16`, `ratio=2/16`. The fixture ratio `1/5` is not this live ratio.
