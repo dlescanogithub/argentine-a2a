@@ -49,21 +49,30 @@ class RepoTest(unittest.TestCase):
             ["human_reject=1", "decisions=5", "ratio=1/5"],
         )
 
-    def test_agent_cards_match_and_are_not_a_public_runtime(self) -> None:
+    def test_agent_cards_match_and_point_at_the_fly_gate(self) -> None:
         root_card = (ROOT / "agent-card.json").read_text(encoding="utf-8")
         well_known = (ROOT / ".well-known" / "agent-card.json").read_text(encoding="utf-8")
         self.assertEqual(root_card, well_known)
         card = json.loads(root_card)
-        self.assertEqual(card["version"], "1.0.0")
-        self.assertIn("not publicly deployed", card["description"])
+        self.assertEqual(card["version"], "1.1.0")
+        description = card["description"]
+        self.assertIn("https://argentine-a2a.fly.dev", description)
+        self.assertIn("GO, NO_GO, or NEED_HUMAN", description)
+        self.assertIn("allowlist Bearer", description)
+        self.assertIn("ARGENTINE_DIEGO_OFF", description)
+        self.assertIn("diego.off", description)
+        self.assertNotIn("not publicly deployed", description)
+        self.assertNotIn("localhost", description)
+        self.assertEqual(
+            card["provider"]["url"],
+            "https://www.linkedin.com/in/diego-lescano-data-science",
+        )
         skill_ids = [skill["id"] for skill in card["skills"]]
         self.assertEqual(skill_ids, ["hitl-blast-gate"])
         for interface in card["supportedInterfaces"]:
-            self.assertTrue(
-                interface["url"].startswith(
-                    "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/"
-                )
-            )
+            self.assertEqual(interface["url"], "https://argentine-a2a.fly.dev")
+            self.assertEqual(interface["protocolBinding"], "JSONRPC")
+            self.assertEqual(interface["protocolVersion"], "1.0")
             self.assertNotIn("127.0.0.1", interface["url"])
 
     def test_package_has_no_outbound_clients(self) -> None:
@@ -90,10 +99,11 @@ class RepoTest(unittest.TestCase):
         names = {case["name"] for case in briefs["cases"]}
         self.assertTrue({"low-complete", "high-missing", "high-reject"} <= names)
 
-    def test_homepage_does_not_claim_a_hosted_gate(self) -> None:
+    def test_homepage_points_at_the_live_gate(self) -> None:
         page = (ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertIn("https://argentine-a2a.fly.dev", page)
         self.assertIn("localhost", page)
-        self.assertIn("not hosted", page)
+        self.assertIn("not hosted on this page", page)
 
 
 if __name__ == "__main__":
