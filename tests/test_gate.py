@@ -302,6 +302,15 @@ class GateTest(unittest.TestCase):
         self.assertEqual(health_body["diego_off"], False)
         self.assertEqual(health_body["max_concurrent"], 2)
         self.assertEqual(health_body["timeout_seconds"], 15)
+        card = HTTPConnection("127.0.0.1", port, timeout=5)
+        card.request("GET", "/.well-known/agent-card.json")
+        served = json.loads(card.getresponse().read().decode("utf-8"))
+        card.close()
+        url = served["supportedInterfaces"][0]["url"]
+        self.assertTrue(url.startswith(f"http://127.0.0.1:{port}"))
+        self.assertNotIn("not publicly deployed", served["description"])
+        self.assertNotIn("localhost", served["description"])
+        self.assertIn("https://argentine-a2a.fly.dev", served["description"])
 
     def test_bind_all_interfaces_for_a_proxy(self) -> None:
         app = self.make_app()
@@ -322,8 +331,11 @@ class GateTest(unittest.TestCase):
         served = json.loads(card.getresponse().read().decode("utf-8"))
         card.close()
         url = served["supportedInterfaces"][0]["url"]
-        self.assertTrue(url.startswith("http://127.0.0.1:"))
-        self.assertNotIn("fly.dev", url)
+        self.assertEqual(url, "https://argentine-a2a.fly.dev")
+        self.assertNotIn("not publicly deployed", served["description"])
+        self.assertNotIn("localhost", served["description"])
+        self.assertIn("public URL is not the trust boundary", served["description"])
+        self.assertEqual(served["version"], "1.2.0")
 
     def test_bind_refuses_other_addresses(self) -> None:
         with self.assertRaises(RuntimeError):

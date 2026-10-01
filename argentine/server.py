@@ -65,6 +65,7 @@ class GateApp:
         rate_window_s: float = DEFAULT_RATE_WINDOW_S,
         decide_hook=None,
         port: int = 8787,
+        host: str = "127.0.0.1",
     ) -> None:
         self.allowlist = allowlist
         self.kill = kill
@@ -75,6 +76,7 @@ class GateApp:
         self.rate_window_s = rate_window_s
         self.decide_hook = decide_hook
         self.port = port
+        self.host = host
         self._limiter = RateLimiter(rate_limit, rate_window_s)
         self._slots = threading.BoundedSemaphore(max_concurrent)
 
@@ -103,7 +105,7 @@ class GateApp:
                 "timeout_seconds": self.timeout_s,
             }
         if method == "GET" and path == "/.well-known/agent-card.json":
-            return 200, local_agent_card(self.port)
+            return 200, served_agent_card(self.port, self.host)
         if method == "GET" and path == "/v1/gate/stats":
             return self._stats(headers)
         if method != "POST" or path not in {"/v1/gate", "/", "/a2a"}:
@@ -246,17 +248,25 @@ def _peek_rpc_id(body: bytes | None):
     return None
 
 
-def local_agent_card(port: int) -> dict:
+def served_agent_card(port: int, host: str) -> dict:
+    """Serve agent-card.json.
+
+    A loopback listener rewrites only the interface URL to that listener so a
+    local client can find the process. The description is never rewritten.
+    A 0.0.0.0 bind (the Fly image) returns the file unchanged, including the
+    public gate URL. The public URL is not the trust boundary.
+    """
     from argentine import ROOT
 
     card = json.loads((ROOT / "agent-card.json").read_text(encoding="utf-8"))
-    card["supportedInterfaces"] = [
-        {
-            "url": f"http://127.0.0.1:{port}/",
-            "protocolBinding": "JSONRPC",
-            "protocolVersion": "1.0",
-        }
-    ]
+    if host == "127.0.0.1":
+        card["supportedInterfaces"] = [
+            {
+                "url": f"http://127.0.0.1:{port}/",
+                "protocolBinding": "JSONRPC",
+                "protocolVersion": "1.0",
+            }
+        ]
     return card
 
 
@@ -305,7 +315,8 @@ def make_handler(app: GateApp):
 def bind(app: GateApp, port: int = 8787, host: str = "127.0.0.1") -> ThreadingHTTPServer:
     """Listen on loopback, or on 0.0.0.0 when a local proxy such as Fly must connect.
 
-    Any other address is refused. Binding 0.0.0.0 does not publish a hostname.
+    Any other address is refused. Binding 0.0.0.0 does not choose a hostname.
+    The card served on that bind is agent-card.json, which names the public gate.
     """
     host = host.strip()
     if host not in ALLOWED_BINDS:
@@ -317,6 +328,7 @@ def bind(app: GateApp, port: int = 8787, host: str = "127.0.0.1") -> ThreadingHT
     if bound_host not in ALLOWED_BINDS:
         httpd.server_close()
         raise RuntimeError("refusing to bind anything other than 127.0.0.1 or 0.0.0.0")
+    app.host = host
     app.port = bound_port
     return httpd
 
