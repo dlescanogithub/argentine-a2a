@@ -35,6 +35,27 @@ python3 -m argentine decide
 
 Useful flags: `--port`, `--bind`, `--allowlist`, `--log`, `--off-file`, `--rate-limit`, `--stdout-log`. Defaults are loopback, `config/allowlist.json`, `var/gate-log.jsonl`, and `var/diego.off` inside this repository. `ARGENTINE_ALLOWLIST`, when set, overrides the allowlist file.
 
+## Caller demo
+
+Send a brief to the live gate. The script prints `decision` and `fails` only. It does not print the bearer token. Tokens in `config/allowlist.json` are for localhost. The live gate uses its own allowlist.
+
+```bash
+export ARGENTINE_CALLER_TOKEN="your-allowlist-token"
+python3 scripts/call_gate.py go
+python3 scripts/call_gate.py need-human
+```
+
+`ARGENTINE_CALLER_TOKEN` is required. `ARGENTINE_GATE_URL` overrides the endpoint and defaults to `https://argentine-a2a.fly.dev/v1/gate`.
+
+`go` posts the `low-complete` brief. `need-human` posts the `high-missing` brief. Any name in `fixtures/briefs.json` works the same way. Inline flags build a request without a fixture:
+
+```bash
+python3 scripts/call_gate.py \
+  --brief "Review whether to draft a participation note." \
+  --blast-class high \
+  --egress reply
+```
+
 ## Request and response
 
 `POST /v1/gate` with `Authorization: Bearer <token>`:
