@@ -253,8 +253,8 @@ def served_agent_card(port: int, host: str) -> dict:
 
     A loopback listener rewrites only the interface URL to that listener so a
     local client can find the process. The description is never rewritten.
-    A 0.0.0.0 bind (the Fly image) returns the file unchanged, including the
-    public gate URL. The public URL is not the trust boundary.
+    A 0.0.0.0 bind (the container image) returns the file unchanged, including
+    the public gate URL. The public URL is not the trust boundary.
     """
     from argentine import ROOT
 
@@ -313,7 +313,7 @@ def make_handler(app: GateApp):
 
 
 def bind(app: GateApp, port: int = 8787, host: str = "127.0.0.1") -> ThreadingHTTPServer:
-    """Listen on loopback, or on 0.0.0.0 when a local proxy such as Fly must connect.
+    """Listen on loopback, or on 0.0.0.0 when a local proxy such as Railway or Fly must connect.
 
     Any other address is refused. Binding 0.0.0.0 does not choose a hostname.
     The card served on that bind is agent-card.json, which names the public gate.

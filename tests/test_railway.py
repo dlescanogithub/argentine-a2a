@@ -1,4 +1,4 @@
-"""Railway is an alternate host. The public card stays on the Fly URL."""
+"""Railway is the public host. Fly remains a legacy host."""
 
 from __future__ import annotations
 
@@ -12,7 +12,8 @@ from pathlib import Path
 
 from argentine import ROOT
 
-CARD_URL = "https://argentine-a2a.fly.dev"
+PUBLIC_URL = "https://argentine-a2a-production.up.railway.app"
+FLY_URL = "https://argentine-a2a.fly.dev"
 
 
 class RailwayHostTest(unittest.TestCase):
@@ -43,15 +44,18 @@ class RailwayHostTest(unittest.TestCase):
         self.assertNotIn("startCommand", text)
         self.assertNotIn("https://", text)
         self.assertNotIn("railway.app", text)
-        self.assertNotIn(CARD_URL, text)
+        self.assertNotIn(PUBLIC_URL, text)
+        self.assertNotIn(FLY_URL, text)
         for secret in ("dev-diego", "dev-ops", "REPLACE_DIEGO", "REPLACE_OPS"):
             self.assertNotIn(secret, text)
 
-    def test_docs_keep_fly_and_describe_railway_cutover(self) -> None:
+    def test_docs_name_railway_as_the_public_gate(self) -> None:
         ops = (ROOT / "docs" / "OPS.md").read_text(encoding="utf-8")
         railway = (ROOT / "docs" / "RAILWAY.md").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("https://argentine-a2a.fly.dev", ops)
+        self.assertIn(PUBLIC_URL, ops)
+        self.assertIn(FLY_URL, ops)
+        self.assertIn("Card version stays 1.2.0", ops)
         self.assertIn("fly secrets set", ops)
         self.assertIn("docs/RAILWAY.md", ops)
         self.assertIn("ARGENTINE_ALLOWLIST", ops)
@@ -79,20 +83,24 @@ class RailwayHostTest(unittest.TestCase):
             "Leave `PORT` unset",
         ):
             self.assertIn(phrase, railway)
-        self.assertNotIn("https://", railway.replace("https://argentine-a2a.fly.dev", "").replace(
+        stripped = railway
+        for url in (
+            PUBLIC_URL,
+            FLY_URL,
             "https://<railway-hostname>",
-            "",
-        ).replace(
             "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
-            "",
-        ))
+        ):
+            stripped = stripped.replace(url, "")
+        self.assertNotIn("https://", stripped)
         self.assertIn("docs/RAILWAY.md", readme)
-        self.assertIn(CARD_URL, readme)
+        self.assertIn(PUBLIC_URL, readme)
         card = (ROOT / "agent-card.json").read_text(encoding="utf-8")
         well_known = (ROOT / ".well-known" / "agent-card.json").read_text(encoding="utf-8")
         self.assertEqual(card, well_known)
-        self.assertIn(CARD_URL, card)
-        self.assertNotIn("railway", card.lower())
+        self.assertIn(PUBLIC_URL, card)
+        self.assertIn("live on Railway", card)
+        self.assertNotIn("fly.dev", card)
+        self.assertNotIn("live on Fly", card)
 
     def test_entrypoint_uses_port_when_set(self) -> None:
         if os.geteuid() == 0:

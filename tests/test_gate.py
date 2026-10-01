@@ -310,7 +310,8 @@ class GateTest(unittest.TestCase):
         self.assertTrue(url.startswith(f"http://127.0.0.1:{port}"))
         self.assertNotIn("not publicly deployed", served["description"])
         self.assertNotIn("localhost", served["description"])
-        self.assertIn("https://argentine-a2a.fly.dev", served["description"])
+        self.assertIn("https://argentine-a2a-production.up.railway.app", served["description"])
+        self.assertIn("live on Railway", served["description"])
 
     def test_bind_all_interfaces_for_a_proxy(self) -> None:
         app = self.make_app()
@@ -331,7 +332,8 @@ class GateTest(unittest.TestCase):
         served = json.loads(card.getresponse().read().decode("utf-8"))
         card.close()
         url = served["supportedInterfaces"][0]["url"]
-        self.assertEqual(url, "https://argentine-a2a.fly.dev")
+        self.assertEqual(url, "https://argentine-a2a-production.up.railway.app")
+        self.assertIn("live on Railway", served["description"])
         self.assertNotIn("not publicly deployed", served["description"])
         self.assertNotIn("localhost", served["description"])
         self.assertIn("public URL is not the trust boundary", served["description"])

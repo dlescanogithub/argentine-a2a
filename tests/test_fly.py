@@ -1,4 +1,4 @@
-"""Fly hosting: bind flag, secrets, log rotation, and the public gate URL."""
+"""Fly hosting: bind flag, secrets, log rotation, and the served public card."""
 
 from __future__ import annotations
 
@@ -15,17 +15,19 @@ from argentine.auth import Allowlist, AllowlistError
 from argentine.logstore import JsonlLog, build_record, count_decisions
 from argentine.server import served_agent_card
 
-CARD_URL = "https://argentine-a2a.fly.dev"
+PUBLIC_URL = "https://argentine-a2a-production.up.railway.app"
 NOW = datetime(2026, 9, 30, 12, 0, tzinfo=timezone.utc)
 
 
 class FlyPrepTest(unittest.TestCase):
-    def test_agent_card_points_at_the_fly_gate(self) -> None:
+    def test_proxy_bind_serves_the_public_railway_card(self) -> None:
         for relative in ("agent-card.json", ".well-known/agent-card.json"):
             text = (ROOT / relative).read_text(encoding="utf-8")
             card = json.loads(text)
             interface = card["supportedInterfaces"][0]
-            self.assertEqual(interface["url"], CARD_URL)
+            self.assertEqual(interface["url"], PUBLIC_URL)
+            self.assertNotIn("fly.dev", text)
+            self.assertIn("live on Railway", card["description"])
             self.assertEqual(interface["protocolBinding"], "JSONRPC")
             self.assertEqual(interface["protocolVersion"], "1.0")
             self.assertNotIn("raw.githubusercontent.com", interface["url"])
@@ -34,7 +36,7 @@ class FlyPrepTest(unittest.TestCase):
             self.assertNotIn("localhost", card["description"])
             self.assertEqual(card["version"], "1.2.0")
         served = served_agent_card(8080, "0.0.0.0")
-        self.assertEqual(served["supportedInterfaces"][0]["url"], CARD_URL)
+        self.assertEqual(served["supportedInterfaces"][0]["url"], PUBLIC_URL)
         self.assertNotIn("127.0.0.1", json.dumps(served["supportedInterfaces"]))
         self.assertIn("public URL is not the trust boundary", served["description"])
         loopback = served_agent_card(8787, "127.0.0.1")

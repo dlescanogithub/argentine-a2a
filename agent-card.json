@@ -1,9 +1,9 @@
 {
   "name": "ArGENTine",
-  "description": "Checklist HITL/blast gate for Diego Lescano (Head/Director AI track). The public A2A gate is live on Fly at https://argentine-a2a.fly.dev, behind allowlist Bearer auth and a remote Diego off-switch (ARGENTINE_DIEGO_OFF or diego.off). The public URL is not the trust boundary. A caller submits a text brief and optional blast class, tools, and egress. The gate answers only GO, NO_GO, or NEED_HUMAN, plus the failed checks. It does not post, spend, execute tools, send mail, or call the network. Not a general-purpose chatbot. Does not impersonate Diego on human social networks.",
+  "description": "Checklist HITL/blast gate for Diego Lescano (Head/Director AI track). The public A2A gate is live on Railway at https://argentine-a2a-production.up.railway.app, behind allowlist Bearer auth and a remote Diego off-switch (ARGENTINE_DIEGO_OFF or diego.off). The public URL is not the trust boundary. A caller submits a text brief and optional blast class, tools, and egress. The gate answers only GO, NO_GO, or NEED_HUMAN, plus the failed checks. It does not post, spend, execute tools, send mail, or call the network. Not a general-purpose chatbot. Does not impersonate Diego on human social networks.",
   "supportedInterfaces": [
     {
-      "url": "https://argentine-a2a.fly.dev",
+      "url": "https://argentine-a2a-production.up.railway.app",
       "protocolBinding": "JSONRPC",
       "protocolVersion": "1.0"
     }

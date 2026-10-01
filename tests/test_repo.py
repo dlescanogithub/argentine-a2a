@@ -49,15 +49,17 @@ class RepoTest(unittest.TestCase):
             ["human_reject=1", "decisions=5", "ratio=1/5"],
         )
 
-    def test_agent_cards_match_and_point_at_the_fly_gate(self) -> None:
+    def test_agent_cards_match_and_point_at_the_railway_gate(self) -> None:
         root_card = (ROOT / "agent-card.json").read_text(encoding="utf-8")
         well_known = (ROOT / ".well-known" / "agent-card.json").read_text(encoding="utf-8")
         self.assertEqual(root_card, well_known)
         card = json.loads(root_card)
         self.assertEqual(card["version"], "1.2.0")
         description = card["description"]
-        self.assertIn("https://argentine-a2a.fly.dev", description)
-        self.assertIn("public A2A gate is live on Fly", description)
+        self.assertIn("https://argentine-a2a-production.up.railway.app", description)
+        self.assertIn("public A2A gate is live on Railway", description)
+        self.assertNotIn("fly.dev", description)
+        self.assertNotIn("live on Fly", description)
         self.assertIn("public URL is not the trust boundary", description)
         self.assertIn("remote Diego off-switch", description)
         self.assertIn("Not a general-purpose chatbot", description)
@@ -75,7 +77,7 @@ class RepoTest(unittest.TestCase):
         skill_ids = [skill["id"] for skill in card["skills"]]
         self.assertEqual(skill_ids, ["hitl-blast-gate"])
         for interface in card["supportedInterfaces"]:
-            self.assertEqual(interface["url"], "https://argentine-a2a.fly.dev")
+            self.assertEqual(interface["url"], "https://argentine-a2a-production.up.railway.app")
             self.assertEqual(interface["protocolBinding"], "JSONRPC")
             self.assertEqual(interface["protocolVersion"], "1.0")
             self.assertNotIn("127.0.0.1", interface["url"])
@@ -114,7 +116,8 @@ class RepoTest(unittest.TestCase):
             "NO_GO",
             "NEED_HUMAN",
             "human_reject",
-            "https://argentine-a2a.fly.dev/health",
+            "https://argentine-a2a-production.up.railway.app/health",
+            "Card version stays 1.2.0",
             "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
             "github.dlescanogithub/argentine-a2a",
             "human_reject count",
@@ -132,7 +135,8 @@ class RepoTest(unittest.TestCase):
 
     def test_homepage_points_at_the_live_gate(self) -> None:
         page = (ROOT / "index.html").read_text(encoding="utf-8")
-        self.assertIn("https://argentine-a2a.fly.dev", page)
+        self.assertIn("https://argentine-a2a-production.up.railway.app", page)
+        self.assertNotIn("fly.dev", page)
         self.assertIn("localhost", page)
         self.assertIn("not hosted on this page", page)
 
