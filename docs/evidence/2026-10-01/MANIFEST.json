@@ -1,0 +1,53 @@
+{
+  "schema": "argentine.evidence.v1",
+  "exported_at_utc": "2026-10-01T06:48:01Z",
+  "exported_at_art": "2026-10-01 06:48:01 America",
+  "git_commit_at_export": "4a0e8f7bb23c688549db6f8c967181b0c7759264",
+  "signing": {
+    "method": "sha256_manifest_plus_git_commit",
+    "note": "No separate PGP signature. Integrity = SHA256SUMS + immutable git commit after merge."
+  },
+  "artifacts": [
+    {
+      "file": "README.md",
+      "sha256": "bd4d5fa91904f53c787953a2657214e7d4023804d765cf50a353f0537a128ebe",
+      "bytes": 1403
+    },
+    {
+      "file": "SUMMARY.json",
+      "sha256": "0a162036a2e2034d88a922b0dc58a53b43b21cf74d8575307dce7f192721f439",
+      "bytes": 1745
+    },
+    {
+      "file": "gate-log.jsonl",
+      "sha256": "b3faba56c1b89bd11a7a4be5b426a20f8727ca8a149b911f4603817a7753cde3",
+      "bytes": 20507
+    },
+    {
+      "file": "kill-drill-2026-10-01.md",
+      "sha256": "88ccf778d71368a77aa37e99dd9005d20dbd561fdcabd79098e63659fef0e814",
+      "bytes": 3523
+    },
+    {
+      "file": "health.json",
+      "sha256": "2fd52d633166565defa87474653a0f627a7258c50ad6c387f455c90143a8cc7a",
+      "bytes": 72
+    },
+    {
+      "file": "gate-stats.json",
+      "sha256": "bc9c37fbd77d68a917090bb40316faabc558528b32750cb1ef65bbca0b561723",
+      "bytes": 49
+    },
+    {
+      "file": "agent-card.live.json",
+      "sha256": "eff98aa479dc24e91b74bb5f5fd301346c7f27946776676a71146832fa887ed2",
+      "bytes": 2065
+    },
+    {
+      "file": "SHA256SUMS",
+      "sha256": "bc15188c18569a048b7e5b85d9b5e3d53774e691ac0f6b186248f00fe42b9057",
+      "bytes": 574
+    }
+  ],
+  "bundle_sha256_of_sha256sums": "bc15188c18569a048b7e5b85d9b5e3d53774e691ac0f6b186248f00fe42b9057"
+}
