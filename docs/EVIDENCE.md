@@ -124,3 +124,11 @@ The registry page is updated by the listing owner separately from this file. Cap
 | Restore `ARGENTINE_DIEGO_OFF=0`; on confirmed | 2026-09-30 ~23:32:42 | `diego_off` false; GO smoke OK |
 
 After restore, authenticated stats were `human_reject=2`, `decisions=16`, `ratio=2/16`. The fixture ratio `1/5` is not this live ratio.
+
+### Hashed export (2026-10-01)
+
+Point-in-time files a reviewer can cite with SHA-256 hashes live in [`docs/evidence/2026-10-01/`](evidence/2026-10-01/): [`README.md`](evidence/2026-10-01/README.md), [`SUMMARY.json`](evidence/2026-10-01/SUMMARY.json), and [`SHA256SUMS`](evidence/2026-10-01/SHA256SUMS). That directory also holds `gate-log.jsonl` and `kill-drill-2026-10-01.md`. Briefs in the log are `brief_hash` only.
+
+Drill-time authenticated stats were **2/16**. This export’s live log/stats are **2/66** (same 2 human rejects, more later traffic). The `2/16` figure is the authenticated stats body after the kill-drill restore, recorded in the snapshot above and in the drill report. The `2/66` figure is this export: 66 rows in `gate-log.jsonl` and `gate-stats.json`.
+
+Signing method: SHA-256 manifest + git commit (no PGP). From `docs/evidence/2026-10-01/`, `sha256sum -c SHA256SUMS` checks every file named in that list. Cite the git commit that added this directory, and that commit’s date, as the record of these bytes. `SUMMARY.json` field `git_commit_at_export` is the code revision the live gate was on when the pack was taken. It is not a separate signature.

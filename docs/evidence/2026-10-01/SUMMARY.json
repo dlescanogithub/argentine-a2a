@@ -1,0 +1,58 @@
+{
+  "title": "ArGENTine A2A governance evidence pack",
+  "exported_at_utc": "2026-10-01T06:48:01Z",
+  "exported_at_art": "2026-10-01 06:48:01 America",
+  "gate_url": "https://argentine-a2a.fly.dev",
+  "repo": "https://github.com/dlescanogithub/argentine-a2a",
+  "git_commit_at_export": "4a0e8f7bb23c688549db6f8c967181b0c7759264",
+  "registry_listing": "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
+  "card_version_live": "1.2.0",
+  "health": {
+    "ok": true,
+    "diego_off": false,
+    "max_concurrent": 2,
+    "timeout_seconds": 15.0
+  },
+  "gate_stats_api": {
+    "human_reject": 2,
+    "decisions": 66,
+    "ratio": "2/66"
+  },
+  "gate_log": {
+    "path": "gate-log.jsonl",
+    "rows": 66,
+    "human_reject": 2,
+    "ratio": "2/66",
+    "decisions": {
+      "GO": 4,
+      "NEED_HUMAN": 3,
+      "NO_GO": 59
+    },
+    "callers": {
+      "diego": 10,
+      "anonymous": 54,
+      "caller": 2
+    },
+    "first_ts": "2026-10-01T00:31:46Z",
+    "last_ts": "2026-10-01T06:47:22Z",
+    "diego_off_reject_count": 3,
+    "diego_off_reject_ids": [
+      "17db037c-042e-44b4-bb70-a5bae34690f6",
+      "0d4ef8bb-536c-4033-9870-05518a59aaf1",
+      "a3827864-f7d6-4b32-8965-561d32d28297"
+    ],
+    "human_reject_ids": [
+      "71d6de2b-98b5-42e5-a4c5-ff93997e6011",
+      "f55347d7-a5e6-4d47-acdc-8c0e4c5c0288"
+    ],
+    "note": "Briefs are stored only as brief_hash. No bearer tokens. Callers are allowlist ids."
+  },
+  "kill_drill": {
+    "path": "kill-drill-2026-10-01.md",
+    "result": "PASS",
+    "window_art": "2026-09-30 23:29\u201323:32 ART",
+    "stats_after_restore_documented": "2/16",
+    "note": "Live stats at export may be higher than drill-time counts; both are intentional."
+  },
+  "artifacts": []
+}

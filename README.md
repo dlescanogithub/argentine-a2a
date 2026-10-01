@@ -8,6 +8,8 @@ This is not a chatbot. The public A2A gate is live at https://argentine-a2a.fly.
 
 Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose, allowlist, kill path, timeout and concurrency, decision types, how to read `human_reject`, and the public health and registry pointers. The 2026-10-01 evidence snapshot records the kill drill: `human_reject=2`, `decisions=16`, `ratio=2/16`, restore complete 2026-09-30 23:32 ART.
 
+Hashed files for that date are in [docs/evidence/2026-10-01/](docs/evidence/2026-10-01/) ([README](docs/evidence/2026-10-01/README.md), [SUMMARY.json](docs/evidence/2026-10-01/SUMMARY.json), [SHA256SUMS](docs/evidence/2026-10-01/SHA256SUMS)): drill-time authenticated stats were 2/16, and this export’s live log/stats are 2/66.
+
 ## Run locally
 
 From the repository root, with Python 3.12 and no extra packages:
