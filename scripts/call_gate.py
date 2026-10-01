@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BRIEFS_PATH = ROOT / "fixtures" / "briefs.json"
-DEFAULT_GATE_URL = "https://argentine-a2a.fly.dev/v1/gate"
+DEFAULT_GATE_URL = "https://argentine-a2a-production.up.railway.app/v1/gate"
 TIMEOUT_S = 20.0
 
 # Short names for the two demo briefs in fixtures/briefs.json.

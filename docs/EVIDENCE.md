@@ -1,6 +1,6 @@
 # ArGENTine public evidence
 
-This note is for a reviewer who needs to cite how the gate works without any secrets. It describes the public HTTPS runtime at https://argentine-a2a.fly.dev. The agent card in this repository (`agent-card.json` and `.well-known/agent-card.json`, card version 1.2.0) is the source of truth for that listing.
+This note is for a reviewer who needs to cite how the gate works without any secrets. It describes the public HTTPS runtime at https://argentine-a2a-production.up.railway.app. The agent card in this repository (`agent-card.json` and `.well-known/agent-card.json`, card version 1.2.0) is the source of truth for that listing. Card version stays 1.2.0. The public URL cut over from the legacy Fly host `https://argentine-a2a.fly.dev` to Railway. The 2026-10-01 evidence pack later in this note is a point-in-time export from that Fly host and is unchanged.
 
 The public URL is not the trust boundary. Knowing the hostname does not authorize a call. An allowlist bearer token is required, and Diego can refuse every caller with the off-switch.
 
@@ -15,7 +15,7 @@ A caller submits one proposed action: a text brief, plus optional `blast_class`,
 Callers send `Authorization: Bearer <token>`. The process maps the token to a caller id and stores that id in the log. The token is not written to the log.
 
 - Local development reads `config/allowlist.json`. Those committed values are for localhost only. They are not the live allowlist, and they are not repeated here.
-- The live gate reads `ARGENTINE_ALLOWLIST`. On Fly, `ARGENTINE_REQUIRE_ALLOWLIST_SECRET=1`, so a missing allowlist secret makes the process exit instead of falling back to the file in the image.
+- The live gate reads `ARGENTINE_ALLOWLIST`. On Railway and on Fly, `ARGENTINE_REQUIRE_ALLOWLIST_SECRET=1`, so a missing allowlist secret makes the process exit instead of falling back to the file in the image.
 - The allowlist is re-read on every request. An unknown caller gets `unauthorized`. A missing or unreadable allowlist fails closed with `allowlist_unavailable`.
 
 ## Diego off-switch
@@ -30,8 +30,8 @@ Two kill paths, both read on every request:
 
 | Control | What engages it | How it clears |
 | --- | --- | --- |
-| Environment variable `ARGENTINE_DIEGO_OFF` | `1`, `true`, `yes`, or `on` | Unset or set to `0`, then restart the process. On Fly, `fly secrets set` restarts the machine. |
-| Flag file | The file exists, including an empty file. Local path `var/diego.off` (`--off-file`). Fly path `/data/diego.off` (`ARGENTINE_DIEGO_OFF_FILE`). | Delete the file. The next request sees the change with no restart. |
+| Environment variable `ARGENTINE_DIEGO_OFF` | `1`, `true`, `yes`, or `on` | Unset or set to `0`, then restart the process. On Railway, saving the service variable restarts the service. On Fly, `fly secrets set` restarts the machine. |
+| Flag file | The file exists, including an empty file. Local path `var/diego.off` (`--off-file`). Railway and Fly path `/data/diego.off` (`ARGENTINE_DIEGO_OFF_FILE`). | Delete the file. The next request sees the change with no restart. |
 
 `GET /health` stays HTTP 200 while the switch is engaged. The body field `diego_off` reports the switch, so the platform health check does not restart-loop on a deliberate shutdown.
 
@@ -84,7 +84,8 @@ ratio=N/M
 Paths:
 
 - Local default: `var/gate-log.jsonl` (gitignored).
-- Fly volume: `/data/gate-log.jsonl`, with stdout mirror when `ARGENTINE_STDOUT_LOG=1`.
+- Railway volume (public host): `/data/gate-log.jsonl`, with stdout mirror when `ARGENTINE_STDOUT_LOG=1`.
+- Fly volume (legacy host): `/data/gate-log.jsonl`, with the same stdout mirror.
 
 `GET /v1/gate/stats` returns `{"human_reject": N, "decisions": M, "ratio": "N/M"}` for the same files. That route requires an allowlist bearer token. This document does not include one.
 
@@ -94,14 +95,17 @@ Paths:
 
 | What | Where |
 | --- | --- |
-| Gate | https://argentine-a2a.fly.dev |
-| Health | https://argentine-a2a.fly.dev/health |
-| Agent card served by the process | https://argentine-a2a.fly.dev/.well-known/agent-card.json |
-| Card in this repo | `agent-card.json` and `.well-known/agent-card.json` |
+| Gate | https://argentine-a2a-production.up.railway.app |
+| Health | https://argentine-a2a-production.up.railway.app/health |
+| Agent card served by the process | https://argentine-a2a-production.up.railway.app/.well-known/agent-card.json |
+| Card in this repo | `agent-card.json` and `.well-known/agent-card.json` (version 1.2.0) |
+| Legacy Fly host | https://argentine-a2a.fly.dev |
 | Owned A2A registry listing | https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 |
 | Registry package | `github.dlescanogithub/argentine-a2a` |
 
-On a loopback bind the process rewrites only the card's interface URL to that local listener. On `0.0.0.0` (the Fly image) it serves `agent-card.json` unchanged, so the interface URL stays `https://argentine-a2a.fly.dev`. The description is never rewritten to a localhost-only claim.
+On a loopback bind the process rewrites only the card's interface URL to that local listener. On `0.0.0.0` (the container image) it serves `agent-card.json` unchanged, so the interface URL stays `https://argentine-a2a-production.up.railway.app`. The description is never rewritten to a localhost-only claim.
+
+Card version stays 1.2.0. The cutover changes the public origin from Fly to Railway. After the Railway service is serving this card, re-claim the registry listing so it matches `https://argentine-a2a-production.up.railway.app/.well-known/agent-card.json`.
 
 The registry page is updated by the listing owner separately from this file. Capabilities in the card in this repository are the source of truth.
 

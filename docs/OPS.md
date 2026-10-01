@@ -1,6 +1,6 @@
 # ArGENTine operations policy
 
-How Diego operates the gate. The public gate is still https://argentine-a2a.fly.dev. Railway is an alternate host for the same image when Fly limits block a deploy. It is not the URL in the agent card. This note has no secrets.
+How Diego operates the gate. The public gate is https://argentine-a2a-production.up.railway.app on Railway. The agent card (version 1.2.0) names that origin. Fly (`https://argentine-a2a.fly.dev`) remains a legacy host. `fly.toml` stays in the repo. Do not run `fly destroy`. This note has no secrets.
 
 Click-deploy, the `/data` volume, variables, smoke calls, and the cutover checklist are in [docs/RAILWAY.md](RAILWAY.md).
 
@@ -8,7 +8,7 @@ Behavior, decision types, and the kill-path table are in [docs/EVIDENCE.md](EVID
 
 ## Token rotation
 
-Allowlist tokens live only in the Fly secret `ARGENTINE_ALLOWLIST` and in the operator password manager. They are never committed to git.
+Allowlist tokens live only in the host secret `ARGENTINE_ALLOWLIST` and in the operator password manager. They are never committed to git. On Railway, the public host, that value is a service variable. On Fly, the legacy host, it is a Fly secret.
 
 `config/allowlist.json` is a localhost fixture. It is not the production allowlist.
 
@@ -45,6 +45,16 @@ The gate does not post or execute. Both controls are read on every request. The 
 
 An unknown bearer token is refused with `unauthorized`. Knowing the hostname does not authorize a call. The public URL is not the trust boundary.
 
-## Railway alternate
+## Public host cutover
 
-Railway is not live in the agent card. Deploy it from the GitHub repo, mount a volume at `/data`, and set `ARGENTINE_ALLOWLIST`, `ARGENTINE_REQUIRE_ALLOWLIST_SECRET=1`, and `ARGENTINE_DIEGO_OFF` in the Railway dashboard. Smoke `GET /health` and `GET /v1/gate/stats` on the hostname Railway assigns. Move `agent-card.json`, `.well-known/agent-card.json`, and the a2a-registry listing only after that hostname exists. The checklist is in [docs/RAILWAY.md](RAILWAY.md). Fly remains the public host until that cutover.
+Card version stays 1.2.0. The interface URL and the description now name Railway as the live public gate. The 2026-10-01 evidence pack in [docs/evidence/2026-10-01/](evidence/2026-10-01/) is a point-in-time export from the Fly host and is unchanged.
+
+Railway is the public host in `agent-card.json` and `.well-known/agent-card.json`. The assigned origin is https://argentine-a2a-production.up.railway.app. Deploy, the `/data` volume, and variables are in [docs/RAILWAY.md](RAILWAY.md). Set `ARGENTINE_ALLOWLIST`, `ARGENTINE_REQUIRE_ALLOWLIST_SECRET=1`, and `ARGENTINE_DIEGO_OFF` in the Railway dashboard.
+
+After this change is on the live Railway service:
+
+1. `GET https://argentine-a2a-production.up.railway.app/.well-known/agent-card.json` returns the card. `supportedInterfaces[0].url` is `https://argentine-a2a-production.up.railway.app`. The description says the public gate is live on Railway.
+2. `GET https://argentine-a2a-production.up.railway.app/health` returns `"ok": true`.
+3. Re-claim or update the owned listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) so it matches the Railway card URL.
+
+Keep the Fly app until Diego retires it. Do not run `fly destroy`.

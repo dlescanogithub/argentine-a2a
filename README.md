@@ -4,13 +4,13 @@
 
 A caller sends a proposed action: a text brief, plus optional `blast_class`, `tools`, and `egress`. The gate answers with a decision and the gaps. It does not post, spend, execute the caller's tools, send mail, or call the network. The only outputs are the HTTP reply and a local JSONL log.
 
-This is not a chatbot. The public A2A gate is live at https://argentine-a2a.fly.dev, behind an allowlist and a remote Diego off-switch. The public URL is not the trust boundary. Callers need an allowlist Bearer token. Diego can shut the gate with `ARGENTINE_DIEGO_OFF` or `diego.off`.
+This is not a chatbot. The public A2A gate is live at https://argentine-a2a-production.up.railway.app, behind an allowlist and a remote Diego off-switch. The public URL is not the trust boundary. Callers need an allowlist Bearer token. Diego can shut the gate with `ARGENTINE_DIEGO_OFF` or `diego.off`.
 
 Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose, allowlist, kill path, timeout and concurrency, decision types, how to read `human_reject`, and the public health and registry pointers. The 2026-10-01 evidence snapshot records the kill drill: `human_reject=2`, `decisions=16`, `ratio=2/16`, restore complete 2026-09-30 23:32 ART.
 
 Hashed files for that date are in [docs/evidence/2026-10-01/](docs/evidence/2026-10-01/) ([README](docs/evidence/2026-10-01/README.md), [SUMMARY.json](docs/evidence/2026-10-01/SUMMARY.json), [SHA256SUMS](docs/evidence/2026-10-01/SHA256SUMS)): drill-time authenticated stats were 2/16, and this export’s live log/stats are 2/66.
 
-How the live gate is operated (token rotation, off-switch custodian, and Fly fail-closed) is in [docs/OPS.md](docs/OPS.md).
+How the live gate is operated (token rotation, off-switch custodian, the Railway public host, and Fly fail-closed) is in [docs/OPS.md](docs/OPS.md).
 
 ## Run locally
 
@@ -51,7 +51,7 @@ python3 scripts/call_gate.py go
 python3 scripts/call_gate.py need-human
 ```
 
-`ARGENTINE_CALLER_TOKEN` is required. `ARGENTINE_GATE_URL` overrides the endpoint and defaults to `https://argentine-a2a.fly.dev/v1/gate`.
+`ARGENTINE_CALLER_TOKEN` is required. `ARGENTINE_GATE_URL` overrides the endpoint and defaults to `https://argentine-a2a-production.up.railway.app/v1/gate`.
 
 `go` posts the `low-complete` brief. `need-human` posts the `high-missing` brief. Any name in `fixtures/briefs.json` works the same way. Inline flags build a request without a fixture:
 
@@ -189,13 +189,13 @@ ratio=1/5
 
 It will not post, spend, send mail, call Moltbook, fetch a URL from the brief, or run a tool named in the request. Egress from this service is the reply to the caller. The durable log is the local JSONL file. An optional stdout mirror repeats the same line and does not send it over the network.
 
-## Fly.io hosting prep
+## Hosting
 
-`Dockerfile`, `docker/entrypoint.sh`, `fly.toml`, and `.railway/railway.ts` do not hardcode a public URL. The gate is deployed at https://argentine-a2a.fly.dev. Do not run `fly deploy` or change DNS unless Diego asks for another release. Railway is an alternate host for the same image, not a second public URL. See [docs/RAILWAY.md](docs/RAILWAY.md).
+`Dockerfile`, `docker/entrypoint.sh`, `fly.toml`, and `.railway/railway.ts` do not hardcode a public URL. The live public gate is https://argentine-a2a-production.up.railway.app. The agent card names that origin. Fly (`https://argentine-a2a.fly.dev`) is a legacy host. Do not run `fly deploy` or `fly destroy` unless Diego asks. See [docs/RAILWAY.md](docs/RAILWAY.md).
 
 Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.toml` set `ARGENTINE_BIND=0.0.0.0` and `ARGENTINE_PORT=8080` so Fly's HTTPS proxy can reach the process. `docker/entrypoint.sh` listens on `$PORT` when that variable is set (Railway injects it) and otherwise keeps `ARGENTINE_PORT`. `GET /health` is the Fly check and the Railway check. It stays HTTP 200 when the gate is shut, and the body field `diego_off` reports the switch, so the platform does not restart-loop on the off-switch.
 
-### Go-live steps
+### Legacy Fly host
 
 1. `fly auth login`
 2. Change `app` and `primary_region` in `fly.toml` if the defaults are wrong. The volume region must match.
@@ -204,7 +204,7 @@ Local `python3 -m argentine serve` still binds `127.0.0.1`. The image and `fly.t
 5. Set the secrets below. Leave `ARGENTINE_DIEGO_OFF=1` until the moment requests should be accepted.
 6. `fly deploy`
 
-That deploy created the hostname https://argentine-a2a.fly.dev. The agent card interface URL points at that gate.
+That deploy created the hostname https://argentine-a2a.fly.dev. That hostname is the legacy Fly host. The agent card interface URL points at the Railway gate.
 
 ### Secrets
 
@@ -256,11 +256,11 @@ fly ssh console -C "cd /app && python3 -m argentine count --log /data/gate-log.j
 
 `agent-card.json` and `.well-known/agent-card.json` are the public listing (card version 1.2.0). Their interface URL points at the live gate:
 
-`https://argentine-a2a.fly.dev`
+`https://argentine-a2a-production.up.railway.app`
 
-That URL is the JSON-RPC endpoint (`protocolBinding` JSONRPC, `protocolVersion` 1.0). It is not the trust boundary. Callers require allowlist Bearer auth. The gate answers only GO, NO_GO, or NEED_HUMAN, and does not post, spend, execute tools, send mail, or call the network. Diego can shut it with `ARGENTINE_DIEGO_OFF` or `diego.off`. The card says the public gate is live on Fly. It does not say the runtime is localhost-only.
+That URL is the JSON-RPC endpoint (`protocolBinding` JSONRPC, `protocolVersion` 1.0). It is not the trust boundary. Callers require allowlist Bearer auth. The gate answers only GO, NO_GO, or NEED_HUMAN, and does not post, spend, execute tools, send mail, or call the network. Diego can shut it with `ARGENTINE_DIEGO_OFF` or `diego.off`. The card says the public gate is live on Railway. It does not say the runtime is localhost-only.
 
-`GET /.well-known/agent-card.json` reads `agent-card.json`. On a loopback bind the process rewrites only the interface URL to `http://127.0.0.1:<port>/`. When the listener is `0.0.0.0` (the Fly image), it serves that file unchanged, so the interface URL stays `https://argentine-a2a.fly.dev`. The description is not rewritten in either case. See [docs/EVIDENCE.md](docs/EVIDENCE.md).
+`GET /.well-known/agent-card.json` reads `agent-card.json`. On a loopback bind the process rewrites only the interface URL to `http://127.0.0.1:<port>/`. When the listener is `0.0.0.0` (the container image), it serves that file unchanged, so the interface URL stays `https://argentine-a2a-production.up.railway.app`. The description is not rewritten in either case. See [docs/EVIDENCE.md](docs/EVIDENCE.md).
 
 ## License
 

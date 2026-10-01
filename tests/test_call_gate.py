@@ -291,7 +291,7 @@ class CallGateTest(unittest.TestCase):
             "## Caller demo",
             "ARGENTINE_CALLER_TOKEN",
             "ARGENTINE_GATE_URL",
-            "https://argentine-a2a.fly.dev/v1/gate",
+            "https://argentine-a2a-production.up.railway.app/v1/gate",
             "python3 scripts/call_gate.py go",
             "python3 scripts/call_gate.py need-human",
         ):
@@ -305,6 +305,11 @@ class CallGateTest(unittest.TestCase):
         script = SCRIPT.read_text(encoding="utf-8")
         self.assertNotIn("dev-diego", script)
         self.assertTrue(script.startswith("#!/usr/bin/env python3\n"))
+        self.assertEqual(
+            call_gate.DEFAULT_GATE_URL,
+            "https://argentine-a2a-production.up.railway.app/v1/gate",
+        )
+        self.assertNotIn("fly.dev", script)
 
 
 def _unused_post(url, token, payload):

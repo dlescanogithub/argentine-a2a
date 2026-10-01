@@ -1,8 +1,6 @@
-# Railway hosting (alternate)
+# Railway hosting (public gate)
 
-The public gate is still https://argentine-a2a.fly.dev. Railway runs the same image when Fly limits block a deploy. This page does not change `agent-card.json`. It has no secret values.
-
-Fly steps stay in [OPS.md](OPS.md).
+The public gate is https://argentine-a2a-production.up.railway.app. `agent-card.json` and `.well-known/agent-card.json` (version 1.2.0) name that origin. The description says the public gate is live on Railway. Fly (`https://argentine-a2a.fly.dev`) is a legacy host. Fly steps stay in [OPS.md](OPS.md). This page has no secret values.
 
 ## What a new Railway service reads
 
@@ -85,18 +83,18 @@ The dashboard service console can run the same `touch` and `rm`. The volume brow
 
 ## Smoke
 
-Railway assigns a hostname in the service networking settings. Substitute that hostname below. Do not commit it, and do not put it in the agent card, until the cutover checklist is done.
+The public hostname is https://argentine-a2a-production.up.railway.app. Use that origin for the live gate. Do not commit a placeholder hostname. If the service is recreated, substitute the hostname Railway assigns (`https://<railway-hostname>/health`) and update the agent card only after that hostname exists.
 
 ```bash
-curl -fsS "https://<railway-hostname>/health"
-curl -fsS -H "Authorization: Bearer <token>" "https://<railway-hostname>/v1/gate/stats"
+curl -fsS "https://argentine-a2a-production.up.railway.app/health"
+curl -fsS -H "Authorization: Bearer <token>" "https://argentine-a2a-production.up.railway.app/v1/gate/stats"
 ```
 
 `/health` needs no token. Expect `"ok": true`. `diego_off` is `true` while the switch is engaged.
 
 `/v1/gate/stats` needs an allowlist bearer token. Expect `human_reject`, `decisions`, and `ratio`. `unauthorized` means the token is not in `ARGENTINE_ALLOWLIST`.
 
-A decision smoke is the same `POST` as Fly, to `https://<railway-hostname>/v1/gate` or `https://<railway-hostname>/`. Expect `GO`, `NO_GO`, or `NEED_HUMAN`, not `unauthorized`.
+A decision smoke is the same `POST` as Fly, to `https://argentine-a2a-production.up.railway.app/v1/gate` or `https://argentine-a2a-production.up.railway.app/`. Expect `GO`, `NO_GO`, or `NEED_HUMAN`, not `unauthorized`.
 
 Count the volume copy from the service, with the working directory that holds the package:
 
@@ -127,14 +125,21 @@ The partial name is `argentine-a2a`. The Railway project name in the file is `ar
 
 ## Cutover checklist
 
-Do this only after the Railway service is up and the hostname is one Railway actually assigned. Until the card changes, Fly stays the public gate and the agent card keeps `https://argentine-a2a.fly.dev`.
+The assigned production hostname is https://argentine-a2a-production.up.railway.app. This commit points the agent card and the canonical docs at that origin. Card version stays 1.2.0. Do not commit a placeholder hostname.
 
-1. `GET https://<railway-hostname>/health` returns `"ok": true`.
-2. Authenticated `GET /v1/gate/stats` returns counts, not `unauthorized`.
-3. A decision `POST` with a current allowlist token returns a decision.
-4. The off-switch engages and clears (`ARGENTINE_DIEGO_OFF` and `/data/diego.off`).
-5. `/data/gate-log.jsonl` is on the volume and survives a restart.
-6. Edit `agent-card.json` and `.well-known/agent-card.json` together so the interface URL and the description name the real Railway origin. Do not commit a placeholder hostname.
-7. Update the Fly URL citations that describe the live gate: `README.md`, `docs/EVIDENCE.md`, and `index.html`.
-8. Update the owned registry listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) so it matches the card.
-9. Only after that commit is Railway the public host. Keep the Fly app until traffic has moved, in case you need to point the card back.
+Done in this change:
+
+1. `agent-card.json` and `.well-known/agent-card.json` use the Railway origin in `supportedInterfaces[0].url` and in the description.
+2. `README.md`, `docs/EVIDENCE.md`, `docs/OPS.md`, `index.html`, and `scripts/call_gate.py` treat that origin as the public gate.
+3. `fly.toml` is unchanged. The Fly app (`https://argentine-a2a.fly.dev`) is a legacy host.
+
+After merge, on the live Railway service:
+
+1. `GET https://argentine-a2a-production.up.railway.app/health` returns `"ok": true`.
+2. `GET https://argentine-a2a-production.up.railway.app/.well-known/agent-card.json` serves this card. `supportedInterfaces[0].url` is the Railway origin, and the description says the public gate is live on Railway.
+3. Authenticated `GET /v1/gate/stats` returns counts, not `unauthorized`.
+4. A decision `POST` with a current allowlist token returns a decision.
+5. The off-switch engages and clears (`ARGENTINE_DIEGO_OFF` and `/data/diego.off`).
+6. `/data/gate-log.jsonl` is on the volume and survives a restart.
+7. Re-claim or update the owned registry listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) so it matches the Railway card URL.
+8. Keep the Fly app until traffic has moved. Do not run `fly destroy`.
