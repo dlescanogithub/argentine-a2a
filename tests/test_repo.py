@@ -54,9 +54,14 @@ class RepoTest(unittest.TestCase):
         well_known = (ROOT / ".well-known" / "agent-card.json").read_text(encoding="utf-8")
         self.assertEqual(root_card, well_known)
         card = json.loads(root_card)
-        self.assertEqual(card["version"], "1.1.0")
+        self.assertEqual(card["version"], "1.2.0")
         description = card["description"]
         self.assertIn("https://argentine-a2a.fly.dev", description)
+        self.assertIn("public A2A gate is live on Fly", description)
+        self.assertIn("public URL is not the trust boundary", description)
+        self.assertIn("remote Diego off-switch", description)
+        self.assertIn("Not a general-purpose chatbot", description)
+        self.assertIn("Does not impersonate Diego", description)
         self.assertIn("GO, NO_GO, or NEED_HUMAN", description)
         self.assertIn("allowlist Bearer", description)
         self.assertIn("ARGENTINE_DIEGO_OFF", description)
@@ -93,8 +98,34 @@ class RepoTest(unittest.TestCase):
             "ARGENTINE_RATE_LIMIT_PER_HOUR",
             "human_reject=1",
             "ratio=1/5",
+            "docs/EVIDENCE.md",
+            "public URL is not the trust boundary",
         ):
             self.assertIn(phrase, readme)
+        evidence = (ROOT / "docs" / "EVIDENCE.md").read_text(encoding="utf-8")
+        for phrase in (
+            "public URL is not the trust boundary",
+            "ARGENTINE_DIEGO_OFF",
+            "diego.off",
+            "/data/diego.off",
+            "max_concurrent",
+            "timeout_seconds",
+            "GO",
+            "NO_GO",
+            "NEED_HUMAN",
+            "human_reject",
+            "https://argentine-a2a.fly.dev/health",
+            "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
+            "github.dlescanogithub/argentine-a2a",
+            "human_reject count",
+            "2/16",
+            "decisions=16",
+            "2026-09-30 23:32 ART",
+            "last kill-drill timestamp",
+        ):
+            self.assertIn(phrase, evidence)
+        for secret in ("dev-diego", "dev-ops", "REPLACE_DIEGO", "REPLACE_OPS"):
+            self.assertNotIn(secret, evidence)
         briefs = load_briefs()
         names = {case["name"] for case in briefs["cases"]}
         self.assertTrue({"low-complete", "high-missing", "high-reject"} <= names)

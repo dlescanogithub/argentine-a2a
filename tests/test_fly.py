@@ -13,6 +13,7 @@ from argentine import ROOT
 from argentine.__main__ import main
 from argentine.auth import Allowlist, AllowlistError
 from argentine.logstore import JsonlLog, build_record, count_decisions
+from argentine.server import served_agent_card
 
 CARD_URL = "https://argentine-a2a.fly.dev"
 NOW = datetime(2026, 9, 30, 12, 0, tzinfo=timezone.utc)
@@ -29,6 +30,16 @@ class FlyPrepTest(unittest.TestCase):
             self.assertEqual(interface["protocolVersion"], "1.0")
             self.assertNotIn("raw.githubusercontent.com", interface["url"])
             self.assertNotIn("0.0.0.0", text)
+            self.assertNotIn("not publicly deployed", card["description"])
+            self.assertNotIn("localhost", card["description"])
+            self.assertEqual(card["version"], "1.2.0")
+        served = served_agent_card(8080, "0.0.0.0")
+        self.assertEqual(served["supportedInterfaces"][0]["url"], CARD_URL)
+        self.assertNotIn("127.0.0.1", json.dumps(served["supportedInterfaces"]))
+        self.assertIn("public URL is not the trust boundary", served["description"])
+        loopback = served_agent_card(8787, "127.0.0.1")
+        self.assertEqual(loopback["supportedInterfaces"][0]["url"], "http://127.0.0.1:8787/")
+        self.assertEqual(loopback["description"], served["description"])
 
     def test_fly_artifacts_do_not_publish_a_url(self) -> None:
         toml = (ROOT / "fly.toml").read_text(encoding="utf-8")
