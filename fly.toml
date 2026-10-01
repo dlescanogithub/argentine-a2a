@@ -8,6 +8,7 @@ primary_region = "iad"
 
 [env]
   ARGENTINE_BIND = "0.0.0.0"
+  # Fly's proxy uses internal_port below. Leave PORT unset so this stays 8080.
   ARGENTINE_PORT = "8080"
   ARGENTINE_LOG_PATH = "/data/gate-log.jsonl"
   ARGENTINE_DIEGO_OFF_FILE = "/data/diego.off"

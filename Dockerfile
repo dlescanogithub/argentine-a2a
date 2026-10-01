@@ -11,6 +11,8 @@ COPY config ./config
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod 0755 /entrypoint.sh
 
+# ARGENTINE_PORT=8080 matches Fly's internal_port. On Railway, entrypoint.sh
+# copies PORT over this value when Railway injects PORT.
 ENV PYTHONUNBUFFERED=1 \
     ARGENTINE_BIND=0.0.0.0 \
     ARGENTINE_PORT=8080 \
