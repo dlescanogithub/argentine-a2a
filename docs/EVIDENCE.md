@@ -124,11 +124,28 @@ The registry page is updated by the listing owner separately from this file. Cap
 | Partner caller | id `partner` |
 | Partner traces | 2026-10-01 18:15:05 ART, switch open: `GO` and `NEED_HUMAN` |
 | Partner stats at that capture | human_reject 0, decisions 11, ratio 0/11 |
+| Human reject drill | 2026-10-02T00:48:56.560887+00:00 (2026-10-01 21:48:56 ART), caller `partner` |
+| Human reject decision | HTTP 200 `NO_GO`; fails `hitl`, `egress`, `kill_path`, `least_privilege`, `side_effects` |
+| Railway live stats after that drill | `human_reject=1`, `decisions=28`, `ratio=1/28` |
+| Health around the drill | before: `ok` true, `diego_off` false; after: `diego_off` restored true |
 | Kill path | `ARGENTINE_DIEGO_OFF` or `/data/diego.off` |
 
-`diego_off` true is intentional. `GET /health` stays HTTP 200 while the switch is engaged, so the platform health check does not restart-loop. This export did not engage or clear the switch, and it sent no authenticated POST. Unauthenticated `GET /v1/gate/stats` and `POST /v1/gate` returned HTTP 503 `{"decision":"NO_GO","fails":["diego_off"]}`. While the switch is engaged, those routes return `diego_off` before the allowlist is checked.
+`diego_off` true is intentional. `GET /health` stays HTTP 200 while the switch is engaged, so the platform health check does not restart-loop. The 21:01 ART export did not engage or clear the switch, and it sent no authenticated POST. Unauthenticated `GET /v1/gate/stats` and `POST /v1/gate` returned HTTP 503 `{"decision":"NO_GO","fails":["diego_off"]}`. While the switch is engaged, those routes return `diego_off` before the allowlist is checked.
 
-The partner capture is `partner-decisions.json`. It records caller id `partner` only. Authenticated `GO` and `NEED_HUMAN` were taken at 2026-10-01T21:15:05Z while the switch was open. The stats body in that capture is `human_reject` 0 and `decisions` 11. The ratio `0/11` is those two counts. The capture object has no `ratio` field. No allowlist token is in the pack.
+The partner capture is `partner-decisions.json`. It records caller id `partner` only. Authenticated `GO` and `NEED_HUMAN` were taken at 2026-10-01T21:15:05Z while the switch was open. The stats body in that capture is `human_reject` 0 and `decisions` 11. The ratio `0/11` is those two counts. The capture object has no `ratio` field. No allowlist token is in the pack. Those `GO` and `NEED_HUMAN` rows stay.
+
+### Railway human_reject addendum (2026-10-02 UTC)
+
+`human-reject-2026-10-02.json` in the same Railway pack is the later partner drill. Caller id `partner`. Timestamp `2026-10-02T00:48:56.560887+00:00` (2026-10-01 21:48:56 ART).
+
+| Step | Result |
+| --- | --- |
+| Health before the call | `ok` true, `diego_off` false |
+| Decision | HTTP 200 `{"decision":"NO_GO","fails":["hitl","egress","kill_path","least_privilege","side_effects"]}` |
+| Authenticated stats after the call | `human_reject=1`, `decisions=28`, `ratio=1/28` |
+| Health after Diego shut the gate | 2026-10-02T00:52:12Z, HTTP 200, `ok` true, `diego_off` restored true |
+
+After the drill, authenticated stats were `human_reject=1`, `decisions=28`, `ratio=1/28`. `diego_off` restored true. The public `GET /health` body at `Fri, 02 Oct 2026 00:52:12 GMT` was `{"ok":true,"diego_off":true,"max_concurrent":2,"timeout_seconds":15.0}`. The sequence is on, then human_reject, then off. The earlier partner ratio `0/11` remains the 18:15 ART capture. The Fly ratio `2/16` remains the historical pack. Cite `1/5` only for `fixtures/sample-gate-log.jsonl`.
 
 Signing method: SHA-256 manifest + git commit (no PGP). From `docs/evidence/2026-10-01-railway/`, `sha256sum -c SHA256SUMS` checks every file named in that list. `SUMMARY.json` field `git_commit_at_export` is the repository HEAD when the pack was collected (`7591860bb28b809e70588eb69cf2f341c1dc6c25`). `GET /health` does not return a git SHA. Cite the git commit that adds this directory as the record of these bytes.
 

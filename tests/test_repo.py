@@ -161,10 +161,31 @@ class RepoTest(unittest.TestCase):
         self.assertEqual(summary["partner_caller"]["ratio"], "0/11")
         self.assertEqual(summary["kill_path"]["flag_file"], "/data/diego.off")
         self.assertEqual(summary["kill_path"]["env"], "ARGENTINE_DIEGO_OFF")
+        drill = summary["human_reject_drill"]
+        self.assertEqual(drill["caller_id"], "partner")
+        self.assertEqual(drill["ratio"], "1/28")
+        self.assertEqual(drill["human_reject"], 1)
+        self.assertEqual(drill["decisions"], 28)
+        self.assertEqual(drill["decision"], "NO_GO")
+        self.assertEqual(
+            drill["fails"],
+            ["hitl", "egress", "kill_path", "least_privilege", "side_effects"],
+        )
+        self.assertIs(drill["health_before_call"]["diego_off"], False)
+        self.assertIs(drill["health_before_call"]["ok"], True)
+        self.assertIs(drill["health_after"]["diego_off"], True)
+        trace = json.loads((pack / "human-reject-2026-10-02.json").read_text(encoding="utf-8"))
+        self.assertEqual(trace["caller_id"], "partner")
+        self.assertEqual(trace["ts_utc"], "2026-10-02T00:48:56.560887+00:00")
+        self.assertEqual(trace["stats_after_call"]["body"]["ratio"], "1/28")
+        self.assertEqual(trace["health_after"]["body"]["diego_off"], True)
+        self.assertEqual(trace["health_after"]["date_header"], "Fri, 02 Oct 2026 00:52:12 GMT")
         evidence = (ROOT / "docs" / "EVIDENCE.md").read_text(encoding="utf-8")
         self.assertIn("docs/evidence/2026-10-01-railway/", evidence)
         self.assertIn("historical Fly pack", evidence)
         self.assertIn("id `partner`", evidence)
+        self.assertIn("`human_reject=1`, `decisions=28`, `ratio=1/28`", evidence)
+        self.assertIn("`diego_off` restored true", evidence)
         blob = "\n".join(path.read_text(encoding="utf-8") for path in pack.iterdir())
         for secret in ("dev-diego", "dev-ops", "REPLACE_DIEGO", "REPLACE_OPS", "Authorization:"):
             self.assertNotIn(secret, blob)

@@ -1,0 +1,53 @@
+{
+  "schema": "argentine.human_reject_drill.v1",
+  "source": "Operator drill artifact copied into this pack. Secrets omitted. No bearer token and no allowlist JSON.",
+  "source_note": "Railway-era human_reject drill: HITL rejected high-blast; partner caller; secrets omitted",
+  "ts_utc": "2026-10-02T00:48:56.560887+00:00",
+  "ts_art": "2026-10-01 21:48:56 ART",
+  "caller_id": "partner",
+  "host": "https://argentine-a2a-production.up.railway.app",
+  "sequence": "on → human_reject → off",
+  "sequence_note": "on means diego_off false before the call. human_reject is the authenticated NO_GO. off means Diego engaged the switch again after the drill.",
+  "health_before_call": {
+    "ok": true,
+    "diego_off": false,
+    "max_concurrent": 2,
+    "timeout_seconds": 15.0
+  },
+  "decision": {
+    "http": 200,
+    "body": {
+      "decision": "NO_GO",
+      "fails": [
+        "hitl",
+        "egress",
+        "kill_path",
+        "least_privilege",
+        "side_effects"
+      ]
+    }
+  },
+  "stats_after_call": {
+    "http": 200,
+    "body": {
+      "human_reject": 1,
+      "decisions": 28,
+      "ratio": "1/28"
+    }
+  },
+  "health_after": {
+    "observed_at_utc": "2026-10-02T00:52:12Z",
+    "observed_at_art": "2026-10-01 21:52:12 ART",
+    "date_header": "Fri, 02 Oct 2026 00:52:12 GMT",
+    "http_status": 200,
+    "method": "GET",
+    "path": "/health",
+    "body": {
+      "ok": true,
+      "diego_off": true,
+      "max_concurrent": 2,
+      "timeout_seconds": 15.0
+    },
+    "note": "After the drill Diego engaged the off-switch again. diego_off true is intentional. GET /health stays HTTP 200 while the switch is engaged."
+  }
+}

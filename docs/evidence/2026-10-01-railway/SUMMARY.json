@@ -84,6 +84,42 @@
     "switch_during_capture": "open",
     "switch_note": "GO and NEED_HUMAN at HTTP 200, and stats at HTTP 200, were captured while the switch was open. At this export the switch is intentionally off, so those traces were not replayed."
   },
+  "human_reject_drill": {
+    "source_file": "human-reject-2026-10-02.json",
+    "ts_utc": "2026-10-02T00:48:56.560887+00:00",
+    "ts_art": "2026-10-01 21:48:56 ART",
+    "caller_id": "partner",
+    "health_before_call": {
+      "ok": true,
+      "diego_off": false,
+      "max_concurrent": 2,
+      "timeout_seconds": 15.0
+    },
+    "http_status": 200,
+    "decision": "NO_GO",
+    "fails": [
+      "hitl",
+      "egress",
+      "kill_path",
+      "least_privilege",
+      "side_effects"
+    ],
+    "stats_http_status": 200,
+    "human_reject": 1,
+    "decisions": 28,
+    "ratio": "1/28",
+    "health_after": {
+      "observed_at_utc": "2026-10-02T00:52:12Z",
+      "observed_at_art": "2026-10-01 21:52:12 ART",
+      "date_header": "Fri, 02 Oct 2026 00:52:12 GMT",
+      "http_status": 200,
+      "ok": true,
+      "diego_off": true,
+      "note": "Diego engaged the off-switch again after the drill. diego_off true is intentional."
+    },
+    "sequence": "on → human_reject → off",
+    "note": "Railway-era human_reject row. partner-decisions.json remains the earlier GO and NEED_HUMAN capture at ratio 0/11. No bearer token is in this addendum."
+  },
   "registry": {
     "http_status": 200,
     "fetched_at_utc": "2026-10-02T00:01:13Z",
@@ -98,6 +134,7 @@
     "health.json",
     "agent-card.live.json",
     "partner-decisions.json",
+    "human-reject-2026-10-02.json",
     "public-probes.json",
     "registry-listing.json"
   ]

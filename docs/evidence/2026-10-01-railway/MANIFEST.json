@@ -10,18 +10,25 @@
   "registry_listing": "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
   "signing": {
     "method": "sha256_manifest_plus_git_commit",
-    "note": "No separate PGP signature. Integrity is SHA256SUMS plus the git commit that adds this directory. The SHA256SUMS hash below is the checksum file before the MANIFEST.json line was appended."
+    "note": "No separate PGP signature. Integrity is SHA256SUMS plus the git commit that adds this directory. The SHA256SUMS hash below is the checksum file before the MANIFEST.json line was appended. The human_reject addendum is included in this refreshed checksum list. git_commit_at_export remains the 21:01 ART collection HEAD."
+  },
+  "human_reject_addendum": {
+    "file": "human-reject-2026-10-02.json",
+    "ts_utc": "2026-10-02T00:48:56.560887+00:00",
+    "ratio": "1/28",
+    "diego_off_after": true,
+    "note": "Added after the 21:01 ART export. git_commit_at_export stays the collection HEAD of that export."
   },
   "artifacts": [
     {
       "file": "README.md",
-      "sha256": "8463fc34f782fb06398f06618826a9e54c56c107d4a904564e67f53402217f2b",
-      "bytes": 4025
+      "sha256": "49c4514fc2d7cdc90469489bfcd8a0137cf8bcfc1323547f0e02fc1ab650a4be",
+      "bytes": 5826
     },
     {
       "file": "SUMMARY.json",
-      "sha256": "9f64101e28411cc0366df5c8049f6a2d8dee5f72064140f6af6e4f99e886f4ad",
-      "bytes": 3778
+      "sha256": "f899ea8e60b99dd18bf3a0aaab4b995a4de67b65df0c2ea5e69ba04dc8b29ca2",
+      "bytes": 4976
     },
     {
       "file": "health.json",
@@ -39,6 +46,11 @@
       "bytes": 582
     },
     {
+      "file": "human-reject-2026-10-02.json",
+      "sha256": "68f1b480b1d454f8d9392210c2cdcdb7812e8e308a2c34a2f5911b10f814930b",
+      "bytes": 1651
+    },
+    {
       "file": "public-probes.json",
       "sha256": "b698391ed3088afdd36ffb464e48ef26af9a2ae610f8399dc326887f60f30c8a",
       "bytes": 1188
@@ -50,10 +62,10 @@
     },
     {
       "file": "SHA256SUMS",
-      "sha256": "8184d01f1256ca1b5f194ba1c69b92f10adfb3dca3e65e32839a9175946e0bec",
-      "bytes": 582,
+      "sha256": "58395f3d75bd7989cf16dbf956d242c53d1623aeb491de6e4f9f735690694a59",
+      "bytes": 677,
       "note": "Hash of SHA256SUMS before the MANIFEST.json line was appended."
     }
   ],
-  "bundle_sha256_of_sha256sums": "8184d01f1256ca1b5f194ba1c69b92f10adfb3dca3e65e32839a9175946e0bec"
+  "bundle_sha256_of_sha256sums": "58395f3d75bd7989cf16dbf956d242c53d1623aeb491de6e4f9f735690694a59"
 }
