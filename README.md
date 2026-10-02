@@ -12,6 +12,8 @@ Hashed Fly-era files stay in [docs/evidence/2026-10-01/](docs/evidence/2026-10-0
 
 How the live gate is operated (token rotation, off-switch custodian, the Railway public host, and Fly fail-closed) is in [docs/OPS.md](docs/OPS.md).
 
+How to brief an agent, and how to use `GO` / `NO_GO` / `NEED_HUMAN` with the kill switch, is in [docs/COACH.md](docs/COACH.md).
+
 ## Run locally
 
 From the repository root, with Python 3.12 and no extra packages:
