@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-10-01T21:15:05+00:00",
+  "caller_id": "partner",
+  "endpoint": "https://argentine-a2a-production.up.railway.app/v1/gate",
+  "cases": [
+    {
+      "case": "go",
+      "http_status": 200,
+      "decision": "GO",
+      "fails": []
+    },
+    {
+      "case": "need-human",
+      "http_status": 200,
+      "decision": "NEED_HUMAN",
+      "fails": [
+        "hitl",
+        "approved_until",
+        "digest",
+        "kill_path"
+      ]
+    }
+  ],
+  "stats": {
+    "http_status": 200,
+    "counts": {
+      "human_reject": 0,
+      "decisions": 11
+    }
+  }
+}

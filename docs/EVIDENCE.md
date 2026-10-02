@@ -1,6 +1,6 @@
 # ArGENTine public evidence
 
-This note is for a reviewer who needs to cite how the gate works without any secrets. It describes the public HTTPS runtime at https://argentine-a2a-production.up.railway.app. The agent card in this repository (`agent-card.json` and `.well-known/agent-card.json`, card version 1.2.0) is the source of truth for that listing. Card version stays 1.2.0. The public URL cut over from the legacy Fly host `https://argentine-a2a.fly.dev` to Railway. The 2026-10-01 evidence pack later in this note is a point-in-time export from that Fly host and is unchanged.
+This note is for a reviewer who needs to cite how the gate works without any secrets. It describes the public HTTPS runtime at https://argentine-a2a-production.up.railway.app. The agent card in this repository (`agent-card.json` and `.well-known/agent-card.json`, card version 1.2.0) is the source of truth for that listing. Card version stays 1.2.0. The public URL cut over from the legacy Fly host `https://argentine-a2a.fly.dev` to Railway. The canonical citeable pack for the live Railway host is [`docs/evidence/2026-10-01-railway/`](evidence/2026-10-01-railway/). The earlier [`docs/evidence/2026-10-01/`](evidence/2026-10-01/) export is the historical Fly pack. Its files and hashes are unchanged.
 
 The public URL is not the trust boundary. Knowing the hostname does not authorize a call. An allowlist bearer token is required, and Diego can refuse every caller with the off-switch.
 
@@ -105,13 +105,36 @@ Paths:
 
 On a loopback bind the process rewrites only the card's interface URL to that local listener. On `0.0.0.0` (the container image) it serves `agent-card.json` unchanged, so the interface URL stays `https://argentine-a2a-production.up.railway.app`. The description is never rewritten to a localhost-only claim.
 
-Card version stays 1.2.0. The cutover changes the public origin from Fly to Railway. After the Railway service is serving this card, re-claim the registry listing so it matches `https://argentine-a2a-production.up.railway.app/.well-known/agent-card.json`.
+Card version stays 1.2.0. The cutover changes the public origin from Fly to Railway. On 2026-10-01 21:01 ART the owned registry listing named `https://argentine-a2a-production.up.railway.app` and did not name the Fly host. That observation is in the Railway evidence pack.
 
 The registry page is updated by the listing owner separately from this file. Capabilities in the card in this repository are the source of truth.
 
 ## Evidence snapshot
 
-**Dated 2026-10-01.** Kill drill PASS on the night of 2026-09-30 into 2026-10-01 (America/Buenos_Aires). The counts are the authenticated stats after restore. Times below are ART.
+### Canonical live pack (Railway)
+
+**Dated 2026-10-01 evening ART.** The health `Date` header was `Fri, 02 Oct 2026 00:01:12 GMT`, which is 2026-10-01 21:01:12 ART (America/Buenos_Aires, UTC−3). The folder is dated on that ART evening. Cite [`docs/evidence/2026-10-01-railway/`](evidence/2026-10-01-railway/): [`README.md`](evidence/2026-10-01-railway/README.md), [`SUMMARY.json`](evidence/2026-10-01-railway/SUMMARY.json), and [`SHA256SUMS`](evidence/2026-10-01-railway/SHA256SUMS).
+
+| Item | Value |
+| --- | --- |
+| Gate | https://argentine-a2a-production.up.railway.app |
+| Health | HTTP 200, `diego_off` true (intentional off) |
+| Agent card | version 1.2.0; interface URL is the Railway origin |
+| Registry | https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 |
+| Partner caller | id `partner` |
+| Partner traces | 2026-10-01 18:15:05 ART, switch open: `GO` and `NEED_HUMAN` |
+| Partner stats at that capture | human_reject 0, decisions 11, ratio 0/11 |
+| Kill path | `ARGENTINE_DIEGO_OFF` or `/data/diego.off` |
+
+`diego_off` true is intentional. `GET /health` stays HTTP 200 while the switch is engaged, so the platform health check does not restart-loop. This export did not engage or clear the switch, and it sent no authenticated POST. Unauthenticated `GET /v1/gate/stats` and `POST /v1/gate` returned HTTP 503 `{"decision":"NO_GO","fails":["diego_off"]}`. While the switch is engaged, those routes return `diego_off` before the allowlist is checked.
+
+The partner capture is `partner-decisions.json`. It records caller id `partner` only. Authenticated `GO` and `NEED_HUMAN` were taken at 2026-10-01T21:15:05Z while the switch was open. The stats body in that capture is `human_reject` 0 and `decisions` 11. The ratio `0/11` is those two counts. The capture object has no `ratio` field. No allowlist token is in the pack.
+
+Signing method: SHA-256 manifest + git commit (no PGP). From `docs/evidence/2026-10-01-railway/`, `sha256sum -c SHA256SUMS` checks every file named in that list. `SUMMARY.json` field `git_commit_at_export` is the repository HEAD when the pack was collected (`7591860bb28b809e70588eb69cf2f341c1dc6c25`). `GET /health` does not return a git SHA. Cite the git commit that adds this directory as the record of these bytes.
+
+### Historical Fly pack (2026-10-01)
+
+**Dated 2026-10-01.** Kill drill PASS on the night of 2026-09-30 into 2026-10-01 (America/Buenos_Aires). The counts are the authenticated stats after restore. Times below are ART. This directory is the historical Fly-era export.
 
 | Item | Value |
 | --- | --- |
@@ -129,9 +152,9 @@ The registry page is updated by the listing owner separately from this file. Cap
 
 After restore, authenticated stats were `human_reject=2`, `decisions=16`, `ratio=2/16`. The fixture ratio `1/5` is not this live ratio.
 
-### Hashed export (2026-10-01)
+### Hashed export (2026-10-01, Fly, historical)
 
-Point-in-time files a reviewer can cite with SHA-256 hashes live in [`docs/evidence/2026-10-01/`](evidence/2026-10-01/): [`README.md`](evidence/2026-10-01/README.md), [`SUMMARY.json`](evidence/2026-10-01/SUMMARY.json), and [`SHA256SUMS`](evidence/2026-10-01/SHA256SUMS). That directory also holds `gate-log.jsonl` and `kill-drill-2026-10-01.md`. Briefs in the log are `brief_hash` only.
+Point-in-time files from the Fly host, kept with their original SHA-256 hashes, live in [`docs/evidence/2026-10-01/`](evidence/2026-10-01/): [`README.md`](evidence/2026-10-01/README.md), [`SUMMARY.json`](evidence/2026-10-01/SUMMARY.json), and [`SHA256SUMS`](evidence/2026-10-01/SHA256SUMS). That directory also holds `gate-log.jsonl` and `kill-drill-2026-10-01.md`. Briefs in the log are `brief_hash` only.
 
 Drill-time authenticated stats were **2/16**. This export’s live log/stats are **2/66** (same 2 human rejects, more later traffic). The `2/16` figure is the authenticated stats body after the kill-drill restore, recorded in the snapshot above and in the drill report. The `2/66` figure is this export: 66 rows in `gate-log.jsonl` and `gate-stats.json`.
 
