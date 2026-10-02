@@ -4,7 +4,7 @@ How Diego operates the gate. The public gate is https://argentine-a2a-production
 
 Click-deploy, the `/data` volume, variables, smoke calls, and the cutover checklist are in [docs/RAILWAY.md](RAILWAY.md).
 
-Behavior, decision types, and the kill-path table are in [docs/EVIDENCE.md](EVIDENCE.md). The canonical live pack (Railway health, agent card, partner caller id `partner`, and checksums) is in [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/). The historical Fly export (log, kill drill, health, stats, and checksums) stays in [docs/evidence/2026-10-01/](evidence/2026-10-01/).
+Behavior, decision types, and the kill-path table are in [docs/EVIDENCE.md](EVIDENCE.md). The canonical live pack (Railway health, agent card, partner caller id `partner`, the `GO` and `NEED_HUMAN` capture at `0/11`, the later human_reject addendum at `human_reject=1`, `decisions=28`, `ratio=1/28`, and checksums) is in [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/). After that drill, `diego_off` restored true. The historical Fly export (log, kill drill, health, stats, and checksums) stays in [docs/evidence/2026-10-01/](evidence/2026-10-01/).
 
 ## Token rotation
 
