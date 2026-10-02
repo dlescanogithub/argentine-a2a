@@ -133,6 +133,46 @@ class RepoTest(unittest.TestCase):
         names = {case["name"] for case in briefs["cases"]}
         self.assertTrue({"low-complete", "high-missing", "high-reject"} <= names)
 
+    def test_railway_evidence_pack_is_canonical_and_hashed(self) -> None:
+        import hashlib
+
+        pack = ROOT / "docs" / "evidence" / "2026-10-01-railway"
+        lines = (pack / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
+        self.assertGreaterEqual(len(lines), 8)
+        for line in lines:
+            digest, name = line.split("  ", 1)
+            self.assertEqual(hashlib.sha256((pack / name).read_bytes()).hexdigest(), digest, name)
+        health = json.loads((pack / "health.json").read_text(encoding="utf-8"))
+        self.assertEqual(health["ok"], True)
+        self.assertEqual(health["diego_off"], True)
+        card = json.loads((pack / "agent-card.live.json").read_text(encoding="utf-8"))
+        self.assertEqual(card["version"], "1.2.0")
+        self.assertEqual(
+            card["supportedInterfaces"][0]["url"],
+            "https://argentine-a2a-production.up.railway.app",
+        )
+        self.assertNotIn("fly.dev", json.dumps(card))
+        partner = json.loads((pack / "partner-decisions.json").read_text(encoding="utf-8"))
+        self.assertEqual(partner["caller_id"], "partner")
+        self.assertEqual([case["decision"] for case in partner["cases"]], ["GO", "NEED_HUMAN"])
+        summary = json.loads((pack / "SUMMARY.json").read_text(encoding="utf-8"))
+        self.assertTrue(summary["canonical"])
+        self.assertEqual(summary["exported_at_art"], "2026-10-01 21:01:12 ART")
+        self.assertEqual(summary["partner_caller"]["ratio"], "0/11")
+        self.assertEqual(summary["kill_path"]["flag_file"], "/data/diego.off")
+        self.assertEqual(summary["kill_path"]["env"], "ARGENTINE_DIEGO_OFF")
+        evidence = (ROOT / "docs" / "EVIDENCE.md").read_text(encoding="utf-8")
+        self.assertIn("docs/evidence/2026-10-01-railway/", evidence)
+        self.assertIn("historical Fly pack", evidence)
+        self.assertIn("id `partner`", evidence)
+        blob = "\n".join(path.read_text(encoding="utf-8") for path in pack.iterdir())
+        for secret in ("dev-diego", "dev-ops", "REPLACE_DIEGO", "REPLACE_OPS", "Authorization:"):
+            self.assertNotIn(secret, blob)
+        fly = ROOT / "docs" / "evidence" / "2026-10-01"
+        for line in (fly / "SHA256SUMS").read_text(encoding="utf-8").splitlines():
+            digest, name = line.split("  ", 1)
+            self.assertEqual(hashlib.sha256((fly / name).read_bytes()).hexdigest(), digest, name)
+
     def test_homepage_points_at_the_live_gate(self) -> None:
         page = (ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn("https://argentine-a2a-production.up.railway.app", page)

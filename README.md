@@ -6,9 +6,9 @@ A caller sends a proposed action: a text brief, plus optional `blast_class`, `to
 
 This is not a chatbot. The public A2A gate is live at https://argentine-a2a-production.up.railway.app, behind an allowlist and a remote Diego off-switch. The public URL is not the trust boundary. Callers need an allowlist Bearer token. Diego can shut the gate with `ARGENTINE_DIEGO_OFF` or `diego.off`.
 
-Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose, allowlist, kill path, timeout and concurrency, decision types, how to read `human_reject`, and the public health and registry pointers. The 2026-10-01 evidence snapshot records the kill drill: `human_reject=2`, `decisions=16`, `ratio=2/16`, restore complete 2026-09-30 23:32 ART.
+Reviewers can cite [docs/EVIDENCE.md](docs/EVIDENCE.md) without secrets: purpose, allowlist, kill path, timeout and concurrency, decision types, how to read `human_reject`, and the public health and registry pointers. The canonical live pack is [docs/evidence/2026-10-01-railway/](docs/evidence/2026-10-01-railway/) (health at export: `diego_off` true, intentional). The historical Fly kill drill remains `human_reject=2`, `decisions=16`, `ratio=2/16`, restore complete 2026-09-30 23:32 ART.
 
-Hashed files for that date are in [docs/evidence/2026-10-01/](docs/evidence/2026-10-01/) ([README](docs/evidence/2026-10-01/README.md), [SUMMARY.json](docs/evidence/2026-10-01/SUMMARY.json), [SHA256SUMS](docs/evidence/2026-10-01/SHA256SUMS)): drill-time authenticated stats were 2/16, and this export’s live log/stats are 2/66.
+Hashed Fly-era files stay in [docs/evidence/2026-10-01/](docs/evidence/2026-10-01/) ([README](docs/evidence/2026-10-01/README.md), [SUMMARY.json](docs/evidence/2026-10-01/SUMMARY.json), [SHA256SUMS](docs/evidence/2026-10-01/SHA256SUMS)): drill-time authenticated stats were 2/16, and that export’s live log/stats are 2/66. Those hashes are unchanged.
 
 How the live gate is operated (token rotation, off-switch custodian, the Railway public host, and Fly fail-closed) is in [docs/OPS.md](docs/OPS.md).
 

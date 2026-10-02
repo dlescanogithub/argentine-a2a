@@ -1,0 +1,104 @@
+{
+  "title": "ArGENTine A2A governance evidence pack (Railway)",
+  "canonical": true,
+  "schema": "argentine.evidence.v1",
+  "exported_at_utc": "2026-10-02T00:01:12Z",
+  "exported_at_art": "2026-10-01 21:01:12 ART",
+  "exported_at_zone": "America/Argentina/Buenos_Aires",
+  "health_date_header": "Fri, 02 Oct 2026 00:01:12 GMT",
+  "card_date_header": "Fri, 02 Oct 2026 00:01:12 GMT",
+  "gate_url": "https://argentine-a2a-production.up.railway.app",
+  "repo": "https://github.com/dlescanogithub/argentine-a2a",
+  "git_commit_at_export": "7591860bb28b809e70588eb69cf2f341c1dc6c25",
+  "git_commit_note": "Repository HEAD when this pack was collected. GET /health does not return a git SHA. The live agent card is JSON-equal to agent-card.json at this revision. The process serves that card as compact JSON, so the file bytes differ from the pretty-printed card in the repo.",
+  "registry_listing": "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
+  "card_version_live": "1.2.0",
+  "interface_url_live": "https://argentine-a2a-production.up.railway.app",
+  "live_card_json_equals_repo_card": true,
+  "historical_fly_pack": "docs/evidence/2026-10-01/",
+  "health": {
+    "http_status": 200,
+    "ok": true,
+    "diego_off": true,
+    "max_concurrent": 2,
+    "timeout_seconds": 15.0,
+    "diego_off_note": "Intentional off at export. GET /health stays HTTP 200 while the switch is engaged."
+  },
+  "kill_path": {
+    "env": "ARGENTINE_DIEGO_OFF",
+    "flag_file": "/data/diego.off",
+    "engaged_at_export": true,
+    "this_pack_toggled_switch": false,
+    "unauthenticated_stats": {
+      "http_status": 503,
+      "body": {
+        "decision": "NO_GO",
+        "fails": [
+          "diego_off"
+        ]
+      }
+    },
+    "unauthenticated_gate_post": {
+      "http_status": 503,
+      "request_body": {},
+      "body": {
+        "decision": "NO_GO",
+        "fails": [
+          "diego_off"
+        ]
+      }
+    },
+    "auth_note": "No allowlist token was available and none was sent. While the switch is engaged, those routes return diego_off before the allowlist is checked."
+  },
+  "partner_caller": {
+    "caller_id": "partner",
+    "source_file": "partner-decisions.json",
+    "source": "Parent-provided capture copied into this pack. This export sent no authenticated POST.",
+    "generated_at_utc": "2026-10-01T21:15:05+00:00",
+    "generated_at_art": "2026-10-01 18:15:05 ART",
+    "endpoint": "https://argentine-a2a-production.up.railway.app/v1/gate",
+    "cases": [
+      {
+        "case": "go",
+        "http_status": 200,
+        "decision": "GO",
+        "fails": []
+      },
+      {
+        "case": "need-human",
+        "http_status": 200,
+        "decision": "NEED_HUMAN",
+        "fails": [
+          "hitl",
+          "approved_until",
+          "digest",
+          "kill_path"
+        ]
+      }
+    ],
+    "stats_http_status": 200,
+    "human_reject": 0,
+    "decisions": 11,
+    "ratio": "0/11",
+    "ratio_note": "ratio is human_reject/decisions from the captured counts. The capture stats object has no ratio field.",
+    "switch_during_capture": "open",
+    "switch_note": "GO and NEED_HUMAN at HTTP 200, and stats at HTTP 200, were captured while the switch was open. At this export the switch is intentionally off, so those traces were not replayed."
+  },
+  "registry": {
+    "http_status": 200,
+    "fetched_at_utc": "2026-10-02T00:01:13Z",
+    "fetched_at_art": "2026-10-01 21:01:13 ART",
+    "interface_url_observed": "https://argentine-a2a-production.up.railway.app",
+    "fly_host_mentions": 0,
+    "railway_host_mentions": 13
+  },
+  "artifacts": [
+    "README.md",
+    "SUMMARY.json",
+    "health.json",
+    "agent-card.live.json",
+    "partner-decisions.json",
+    "public-probes.json",
+    "registry-listing.json"
+  ]
+}

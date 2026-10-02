@@ -1,0 +1,14 @@
+{
+  "fetched_at_utc": "2026-10-02T00:01:13Z",
+  "fetched_at_art": "2026-10-01 21:01:13 ART",
+  "url": "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
+  "http_status": 200,
+  "date_header": "Fri, 02 Oct 2026 00:01:13 GMT",
+  "package": "github.dlescanogithub/argentine-a2a",
+  "interface_url_observed": "https://argentine-a2a-production.up.railway.app",
+  "railway_host_mentions": 13,
+  "fly_host_mentions": 0,
+  "card_version_observed": "1.2.0",
+  "manifest_url": "https://raw.githubusercontent.com/dlescanogithub/argentine-a2a/main/.well-known/agent-card.json",
+  "note": "Public HTML observation. The process card saved in this pack is agent-card.live.json. This file has no page HTML and no secrets."
+}

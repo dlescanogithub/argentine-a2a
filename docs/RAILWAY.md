@@ -141,5 +141,5 @@ After merge, on the live Railway service:
 4. A decision `POST` with a current allowlist token returns a decision.
 5. The off-switch engages and clears (`ARGENTINE_DIEGO_OFF` and `/data/diego.off`).
 6. `/data/gate-log.jsonl` is on the volume and survives a restart.
-7. Re-claim or update the owned registry listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) so it matches the Railway card URL.
+7. The owned registry listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) was observed on 2026-10-01 21:01 ART naming the Railway origin. The citeable pack is [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/).
 8. Keep the Fly app until traffic has moved. Do not run `fly destroy`.

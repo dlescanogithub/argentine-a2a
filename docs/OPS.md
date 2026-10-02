@@ -4,7 +4,7 @@ How Diego operates the gate. The public gate is https://argentine-a2a-production
 
 Click-deploy, the `/data` volume, variables, smoke calls, and the cutover checklist are in [docs/RAILWAY.md](RAILWAY.md).
 
-Behavior, decision types, and the kill-path table are in [docs/EVIDENCE.md](EVIDENCE.md). The hashed 2026-10-01 export (log, kill drill, health, stats, and checksums) is in [docs/evidence/2026-10-01/](evidence/2026-10-01/).
+Behavior, decision types, and the kill-path table are in [docs/EVIDENCE.md](EVIDENCE.md). The canonical live pack (Railway health, agent card, partner caller id `partner`, and checksums) is in [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/). The historical Fly export (log, kill drill, health, stats, and checksums) stays in [docs/evidence/2026-10-01/](evidence/2026-10-01/).
 
 ## Token rotation
 
@@ -47,7 +47,7 @@ An unknown bearer token is refused with `unauthorized`. Knowing the hostname doe
 
 ## Public host cutover
 
-Card version stays 1.2.0. The interface URL and the description now name Railway as the live public gate. The 2026-10-01 evidence pack in [docs/evidence/2026-10-01/](evidence/2026-10-01/) is a point-in-time export from the Fly host and is unchanged.
+Card version stays 1.2.0. The interface URL and the description now name Railway as the live public gate. The canonical citeable pack is [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/). The 2026-10-01 evidence pack in [docs/evidence/2026-10-01/](evidence/2026-10-01/) is a historical point-in-time export from the Fly host and is unchanged.
 
 Railway is the public host in `agent-card.json` and `.well-known/agent-card.json`. The assigned origin is https://argentine-a2a-production.up.railway.app. Deploy, the `/data` volume, and variables are in [docs/RAILWAY.md](RAILWAY.md). Set `ARGENTINE_ALLOWLIST`, `ARGENTINE_REQUIRE_ALLOWLIST_SECRET=1`, and `ARGENTINE_DIEGO_OFF` in the Railway dashboard.
 
@@ -55,6 +55,6 @@ After this change is on the live Railway service:
 
 1. `GET https://argentine-a2a-production.up.railway.app/.well-known/agent-card.json` returns the card. `supportedInterfaces[0].url` is `https://argentine-a2a-production.up.railway.app`. The description says the public gate is live on Railway.
 2. `GET https://argentine-a2a-production.up.railway.app/health` returns `"ok": true`.
-3. Re-claim or update the owned listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) so it matches the Railway card URL.
+3. The owned listing at https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582 (`github.dlescanogithub/argentine-a2a`) was observed on 2026-10-01 21:01 ART naming the Railway origin. The observation is in [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/).
 
 Keep the Fly app until Diego retires it. Do not run `fly destroy`.

@@ -1,0 +1,59 @@
+{
+  "schema": "argentine.evidence.v1",
+  "pack": "2026-10-01-railway",
+  "canonical": true,
+  "historical_fly_pack": "docs/evidence/2026-10-01/",
+  "exported_at_utc": "2026-10-02T00:01:12Z",
+  "exported_at_art": "2026-10-01 21:01:12 ART",
+  "git_commit_at_export": "7591860bb28b809e70588eb69cf2f341c1dc6c25",
+  "gate_url": "https://argentine-a2a-production.up.railway.app",
+  "registry_listing": "https://www.a2a-registry.org/agent/18978b04-ecd1-4283-8449-060c71014582",
+  "signing": {
+    "method": "sha256_manifest_plus_git_commit",
+    "note": "No separate PGP signature. Integrity is SHA256SUMS plus the git commit that adds this directory. The SHA256SUMS hash below is the checksum file before the MANIFEST.json line was appended."
+  },
+  "artifacts": [
+    {
+      "file": "README.md",
+      "sha256": "8463fc34f782fb06398f06618826a9e54c56c107d4a904564e67f53402217f2b",
+      "bytes": 4025
+    },
+    {
+      "file": "SUMMARY.json",
+      "sha256": "9f64101e28411cc0366df5c8049f6a2d8dee5f72064140f6af6e4f99e886f4ad",
+      "bytes": 3778
+    },
+    {
+      "file": "health.json",
+      "sha256": "30a7604acf1036a79937b8288447b29e278de71d54e9b9c5d033db1bf6573240",
+      "bytes": 70
+    },
+    {
+      "file": "agent-card.live.json",
+      "sha256": "c7655015e759b698fa4fb757212f48ce7b1a2d87793958dd5579d6755b5f4682",
+      "bytes": 2104
+    },
+    {
+      "file": "partner-decisions.json",
+      "sha256": "6c3cfe2c81db89daf2551c749d9d8f1343c2808b589118325a2436e58df873cd",
+      "bytes": 582
+    },
+    {
+      "file": "public-probes.json",
+      "sha256": "b698391ed3088afdd36ffb464e48ef26af9a2ae610f8399dc326887f60f30c8a",
+      "bytes": 1188
+    },
+    {
+      "file": "registry-listing.json",
+      "sha256": "a0a5e09184590a40303363db4a96577ac80d9ffa1f033f38a17892237f5f202f",
+      "bytes": 733
+    },
+    {
+      "file": "SHA256SUMS",
+      "sha256": "8184d01f1256ca1b5f194ba1c69b92f10adfb3dca3e65e32839a9175946e0bec",
+      "bytes": 582,
+      "note": "Hash of SHA256SUMS before the MANIFEST.json line was appended."
+    }
+  ],
+  "bundle_sha256_of_sha256sums": "8184d01f1256ca1b5f194ba1c69b92f10adfb3dca3e65e32839a9175946e0bec"
+}
