@@ -14,6 +14,8 @@ How the live gate is operated (token rotation, off-switch custodian, the Railway
 
 How to brief an agent, and how to use `GO` / `NO_GO` / `NEED_HUMAN` with the kill switch, is in [docs/COACH.md](docs/COACH.md).
 
+The Head/Director portfolio one-pager is [docs/PORTFOLIO.md](docs/PORTFOLIO.md).
+
 ## Run locally
 
 From the repository root, with Python 3.12 and no extra packages:
