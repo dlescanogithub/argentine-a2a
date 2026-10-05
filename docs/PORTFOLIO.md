@@ -7,6 +7,7 @@ For AI Head, Director, COE, and Engineering Manager roles in Argentina, or remot
 ## Proof
 
 - [docs/EVIDENCE.md](EVIDENCE.md) — purpose, allowlist, kill path, decision types, and how to read `human_reject`. No secrets.
+- [docs/GATE_RETURNS.md](GATE_RETURNS.md) — live return contract: HTTP 503 `diego_off`, HTTP 429 `rate_limited`, read `fails` first.
 - [docs/evidence/2026-10-01-railway/](evidence/2026-10-01-railway/) — partner `GO` and `NEED_HUMAN`; after the human-reject drill, authenticated stats were `human_reject=1`, `decisions=28`, `ratio=1/28`, and `diego_off` restored true.
 - [docs/COACH.md](COACH.md) — how to brief an agent and how to use the gate.
 - Live gate: https://argentine-a2a-production.up.railway.app. The public URL is not the trust boundary.
