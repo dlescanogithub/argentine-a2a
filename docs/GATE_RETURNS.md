@@ -15,12 +15,15 @@ Read `fails` before `decision`.
 
 ## Table (2026-10-03)
 
-Same allowlisted caller, switch open, then closed again.
+Same allowlisted caller, switch open, then closed again. Cap: 10 requests per caller per hour. Request 11 is the 429.
 
 | Request | HTTP | decision | fails |
 | --- | --- | --- | --- |
 | 1–10 | 200 | `GO` | `[]` |
 | 11 | 429 | `NO_GO` | `["rate_limited"]` |
+| Switch closed | 503 | `NO_GO` | `["diego_off"]` |
+
+While the switch is closed, `GET /health` stays HTTP 200 and reports `diego_off`. The call is the 503 row.
 
 ## Do not ship
 
