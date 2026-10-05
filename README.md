@@ -16,6 +16,8 @@ How to brief an agent, and how to use `GO` / `NO_GO` / `NEED_HUMAN` with the kil
 
 The Head/Director portfolio one-pager is [docs/PORTFOLIO.md](docs/PORTFOLIO.md).
 
+The live return contract (HTTP 503 `diego_off`, HTTP 429 `rate_limited`, read `fails` first) is [docs/GATE_RETURNS.md](docs/GATE_RETURNS.md).
+
 How an allowlisted caller (id `partner`) hits the live gate is in [docs/PARTNER_CALLER.md](docs/PARTNER_CALLER.md).
 
 ## Run locally

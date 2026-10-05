@@ -29,7 +29,9 @@
       <li><strong>NEED_HUMAN</strong> — something required for a pass is missing.</li>
       <li><strong>NO_GO</strong> — a check failed, including any failure on a high-blast action.</li>
     </ul>
+    <p>Read <code>fails</code> before <code>decision</code>. A closed kill switch is HTTP 503 <code>{"decision":"NO_GO","fails":["diego_off"]}</code>. The allowlist cap is HTTP 429 <code>{"decision":"NO_GO","fails":["rate_limited"]}</code>.</p>
     <ul>
+      <li><a href="https://github.com/dlescanogithub/argentine-a2a/blob/main/docs/GATE_RETURNS.md">What the gate actually returns</a> (HTTP 503 <code>diego_off</code>, HTTP 429 <code>rate_limited</code>)</li>
       <li><a href="./agent-card.json">Agent Card (A2A)</a></li>
       <li><a href="./.well-known/agent-card.json">Well-known Agent Card</a></li>
       <li><a href="https://github.com/dlescanogithub/argentine-a2a">Repository</a></li>
