@@ -25,6 +25,17 @@ Same allowlisted caller, switch open, then closed again. Cap: 10 requests per ca
 
 While the switch is closed, `GET /health` stays HTTP 200 and reports `diego_off`. The call is the 503 row.
 
+## Abort after engage (2026-10-06)
+
+One live run. File kill engaged via `POST /admin/kill` (engage-only). Same allowlisted caller. Cap unchanged.
+
+| Event | HTTP | decision | fails | Latency |
+| --- | --- | --- | --- | --- |
+| New gated call after engage | 503 | `NO_GO` | `["diego_off"]` | ~0.1–0.2 s |
+| In-flight at engage (already past kill check) | 200 | `GO` | `[]` | finishes; not mid-aborted (`timeout_seconds` 15) |
+
+New requests see the closed switch on the next call. A request that already passed the kill check is not torn down mid-flight; it completes or hits the timeout. Health stayed 200 with `diego_off` while the call returned 503.
+
 ## Do not ship
 
 A client that only reads `GET /health`, or only reads `decision`, does not ship.
