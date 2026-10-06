@@ -7,6 +7,7 @@ The process does not open outbound connections.
 from __future__ import annotations
 
 import json
+import secrets
 import signal
 import sys
 import threading
@@ -66,6 +67,7 @@ class GateApp:
         decide_hook=None,
         port: int = 8787,
         host: str = "127.0.0.1",
+        admin_token: str | None = None,
     ) -> None:
         self.allowlist = allowlist
         self.kill = kill
@@ -77,11 +79,21 @@ class GateApp:
         self.decide_hook = decide_hook
         self.port = port
         self.host = host
+        self.admin_token = (admin_token or "").strip() or None
         self._limiter = RateLimiter(rate_limit, rate_window_s)
         self._slots = threading.BoundedSemaphore(max_concurrent)
+        self._admin_lock = threading.Lock()
+        self._kill_changed_at: str | None = None
+        self._last_kill_pass_at: str | None = None
 
     def handle(self, method: str, path: str, headers, body: bytes | None) -> tuple[int, dict]:
         path = urlparse(path).path or "/"
+        if path == "/admin/kill":
+            # Admin kill bypasses the concurrency semaphore so engage still works under load.
+            try:
+                return self._admin_kill(method, headers, body)
+            except Exception:
+                return 500, {"error": "invalid_request"}
         acquired = self._slots.acquire(blocking=False)
         if not acquired:
             caller = self._caller_label(headers)
@@ -121,6 +133,7 @@ class GateApp:
             brief = peek_brief(path, body)
             self._log(caller_label, brief, None, "NO_GO", ["diego_off"], False, "diego_off")
             return self._respond(503, {"decision": "NO_GO", "fails": ["diego_off"]}, path, body)
+        self._last_kill_pass_at = self._iso_now()
 
         try:
             caller = self._require_caller(headers)
@@ -175,6 +188,61 @@ class GateApp:
         )
         payload = {"decision": decision.decision, "fails": list(decision.fails)}
         return self._respond(200, payload, path, body, incoming)
+
+    def _admin_kill(self, method: str, headers, body: bytes | None) -> tuple[int, dict]:
+        """Engage-only kill control. Clearing the flag file is not available over HTTP."""
+        if self.admin_token is None:
+            return 404, {"error": "not_found"}
+        if method not in {"GET", "POST"}:
+            return 404, {"error": "not_found"}
+        if not self._admin_authorized(headers):
+            return 401, {"error": "unauthorized"}
+        if method == "GET":
+            return 200, self._kill_status()
+        # POST engages the file kill. Empty body is fine. {"off": false} is rejected.
+        if body:
+            try:
+                data = json.loads(body.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                return 400, {"error": "invalid_request"}
+            if not isinstance(data, dict):
+                return 400, {"error": "invalid_request"}
+            if "off" in data:
+                if data["off"] is False:
+                    return 400, {"error": "engage_only"}
+                if data["off"] is not True:
+                    return 400, {"error": "invalid_request"}
+        with self._admin_lock:
+            self.kill.engage_file()
+            self._kill_changed_at = self._iso_now()
+        return 200, self._kill_status()
+
+    def _admin_authorized(self, headers) -> bool:
+        expected = self.admin_token
+        if not expected:
+            return False
+        got = bearer_token(headers)
+        if not got:
+            return False
+        try:
+            return secrets.compare_digest(got, expected)
+        except (TypeError, ValueError):
+            return False
+
+    def _iso_now(self) -> str:
+        return self.now().astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    def _kill_status(self) -> dict:
+        env_off = self.kill.env_off()
+        file_off = self.kill.file_off()
+        return {
+            "diego_off": env_off or file_off,
+            "env_off": env_off,
+            "file_off": file_off,
+            "changed_at": self._kill_changed_at,
+            "last_kill_pass_at": self._last_kill_pass_at,
+            "server_time": self._iso_now(),
+        }
 
     def _stats(self, headers) -> tuple[int, dict]:
         if self.kill.engaged():
