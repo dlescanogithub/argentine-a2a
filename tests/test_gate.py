@@ -396,7 +396,7 @@ class GateTest(unittest.TestCase):
         )
         self.assertEqual(status, 401)
 
-    def test_admin_kill_engage_and_clear(self) -> None:
+    def test_admin_kill_engage_only(self) -> None:
         app = self.make_app(admin_token="admin-secret")
         headers = {"Authorization": "Bearer admin-secret", "Content-Type": "application/json"}
         status, body = app.handle("GET", "/admin/kill", headers, None)
@@ -407,40 +407,51 @@ class GateTest(unittest.TestCase):
         self.assertIsNone(body["changed_at"])
         self.assertEqual(body["server_time"], "2026-09-30T12:00:00Z")
 
-        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":true}')
+        # Empty body engages.
+        status, body = app.handle("POST", "/admin/kill", headers, b"")
         self.assertEqual(status, 200)
         self.assertTrue(self.off.is_file())
         self.assertEqual(body["diego_off"], True)
-        self.assertEqual(body["env_off"], False)
         self.assertEqual(body["file_off"], True)
         self.assertEqual(body["changed_at"], "2026-09-30T12:00:00Z")
         gate_status, gate_body = self.post(app, GO_BODY)
         self.assertEqual(gate_status, 503)
         self.assertEqual(gate_body, {"decision": "NO_GO", "fails": ["diego_off"]})
 
+        # API cannot clear / open the gate.
         status, body = app.handle("POST", "/admin/kill", headers, b'{"off":false}')
+        self.assertEqual(status, 400)
+        self.assertEqual(body, {"error": "engage_only"})
+        self.assertTrue(self.off.is_file())
+        self.assertEqual(self.post(app, GO_BODY)[0], 503)
+
+        # {"off": true} is accepted (idempotent engage).
+        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":true}')
         self.assertEqual(status, 200)
-        self.assertFalse(self.off.exists())
-        self.assertEqual(body["diego_off"], False)
-        self.assertEqual(body["file_off"], False)
-        self.assertEqual(body["changed_at"], "2026-09-30T12:00:00Z")
+        self.assertEqual(body["file_off"], True)
+
+        # After a manual clear (operator path), a GO records last_kill_pass_at.
+        self.off.unlink()
         self.assertEqual(self.post(app, GO_BODY)[1]["decision"], "GO")
         status, body = app.handle("GET", "/admin/kill", headers, None)
         self.assertEqual(status, 200)
         self.assertEqual(body["last_kill_pass_at"], "2026-09-30T12:00:00Z")
+        self.assertEqual(body["diego_off"], False)
 
     def test_admin_kill_env_precedence(self) -> None:
         app = self.make_app(admin_token="admin-secret", env={"ARGENTINE_DIEGO_OFF": "1"})
         headers = {"Authorization": "Bearer admin-secret", "Content-Type": "application/json"}
+        # Clear via API is impossible; env alone keeps the gate shut.
         status, body = app.handle("POST", "/admin/kill", headers, b'{"off":false}')
-        self.assertEqual(status, 200)
+        self.assertEqual(status, 400)
+        self.assertEqual(body, {"error": "engage_only"})
         self.assertFalse(self.off.exists())
-        self.assertEqual(body["file_off"], False)
+        status, body = app.handle("GET", "/admin/kill", headers, None)
+        self.assertEqual(status, 200)
         self.assertEqual(body["env_off"], True)
+        self.assertEqual(body["file_off"], False)
         self.assertEqual(body["diego_off"], True)
-        gate_status, gate_body = self.post(app, GO_BODY)
-        self.assertEqual(gate_status, 503)
-        self.assertEqual(gate_body["fails"], ["diego_off"])
+        self.assertEqual(self.post(app, GO_BODY)[0], 503)
 
         status, body = app.handle("POST", "/admin/kill", headers, b'{"off":true}')
         self.assertEqual(status, 200)
@@ -455,8 +466,9 @@ class GateTest(unittest.TestCase):
         status, body = app.handle("POST", "/admin/kill", headers, b'{"off":"yes"}')
         self.assertEqual(status, 400)
         self.assertEqual(body, {"error": "invalid_request"})
-        status, body = app.handle("POST", "/admin/kill", headers, b"{}")
+        status, body = app.handle("POST", "/admin/kill", headers, b"not-json")
         self.assertEqual(status, 400)
+        self.assertEqual(body, {"error": "invalid_request"})
 
 
 

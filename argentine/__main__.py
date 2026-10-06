@@ -85,10 +85,15 @@ def main(argv: list[str] | None = None) -> int:
         except AllowlistError:
             print("allowlist is missing or unreadable", file=sys.stderr)
             return 2
+        kill = KillSwitch(args.off_file)
+        if _env_on("ARGENTINE_CLEAR_KILL_FILE_ON_BOOT"):
+            # Operator clear path: requires a redeploy. Not exposed over HTTP.
+            kill.clear_file()
+            print(f"cleared diego off-switch file on boot: {args.off_file}", file=sys.stderr)
         admin_token = os.environ.get("ARGENTINE_ADMIN_TOKEN", "").strip() or None
         app = GateApp(
             allowlist=allowlist,
-            kill=KillSwitch(args.off_file),
+            kill=kill,
             log=JsonlLog(
                 args.log,
                 max_bytes=args.log_max_bytes,

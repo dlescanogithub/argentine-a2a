@@ -190,6 +190,7 @@ class GateApp:
         return self._respond(200, payload, path, body, incoming)
 
     def _admin_kill(self, method: str, headers, body: bytes | None) -> tuple[int, dict]:
+        """Engage-only kill control. Clearing the flag file is not available over HTTP."""
         if self.admin_token is None:
             return 404, {"error": "not_found"}
         if method not in {"GET", "POST"}:
@@ -198,19 +199,21 @@ class GateApp:
             return 401, {"error": "unauthorized"}
         if method == "GET":
             return 200, self._kill_status()
-        if body is None:
-            return 400, {"error": "invalid_request"}
-        try:
-            data = json.loads(body.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            return 400, {"error": "invalid_request"}
-        if not isinstance(data, dict) or "off" not in data or not isinstance(data["off"], bool):
-            return 400, {"error": "invalid_request"}
+        # POST engages the file kill. Empty body is fine. {"off": false} is rejected.
+        if body:
+            try:
+                data = json.loads(body.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                return 400, {"error": "invalid_request"}
+            if not isinstance(data, dict):
+                return 400, {"error": "invalid_request"}
+            if "off" in data:
+                if data["off"] is False:
+                    return 400, {"error": "engage_only"}
+                if data["off"] is not True:
+                    return 400, {"error": "invalid_request"}
         with self._admin_lock:
-            if data["off"]:
-                self.kill.engage_file()
-            else:
-                self.kill.clear_file()
+            self.kill.engage_file()
             self._kill_changed_at = self._iso_now()
         return 200, self._kill_status()
 
