@@ -85,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
         except AllowlistError:
             print("allowlist is missing or unreadable", file=sys.stderr)
             return 2
+        admin_token = os.environ.get("ARGENTINE_ADMIN_TOKEN", "").strip() or None
         app = GateApp(
             allowlist=allowlist,
             kill=KillSwitch(args.off_file),
@@ -96,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
             ),
             rate_limit=args.rate_limit,
             port=args.port,
+            admin_token=admin_token,
         )
         serve(app, args.port, str(args.bind).strip())
         return 0

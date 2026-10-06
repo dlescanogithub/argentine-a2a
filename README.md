@@ -135,6 +135,8 @@ Accepted values are `1`, `true`, `yes`, and `on`. Unset it and restart to open t
 
 `GET /health` on localhost reports `diego_off`.
 
+Optional admin kill (disabled unless `ARGENTINE_ADMIN_TOKEN` is set): `GET`/`POST /admin/kill` with that Bearer token. `POST` body `{"off": true|false}` creates or removes the flag file. The response reports `diego_off` (env OR file), `env_off`, `file_off`, and `changed_at`. Clearing the file does not open the gate while `ARGENTINE_DIEGO_OFF` is on. The admin token is never logged.
+
 ## Allowlist
 
 `config/allowlist.json`:

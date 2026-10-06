@@ -58,15 +58,17 @@ class GateTest(unittest.TestCase):
         timeout_s = kwargs.pop("timeout_s", 15)
         decide_hook = kwargs.pop("decide_hook", None)
         max_concurrent = kwargs.pop("max_concurrent", 2)
+        admin_token = kwargs.pop("admin_token", None)
         return GateApp(
-            allowlist=Allowlist(path=self.allow_path),
-            kill=KillSwitch(self.off, env=env),
+            allowlist=Allowlist(path=self.allow_path, env={}),
+            kill=KillSwitch(self.off, env=env if env is not None else {}),
             log=JsonlLog(self.log_path),
             now=lambda: NOW,
             timeout_s=timeout_s,
             max_concurrent=max_concurrent,
             rate_limit=rate_limit,
             decide_hook=decide_hook,
+            admin_token=admin_token,
         )
 
     def post(self, app: GateApp, payload: dict, token: str = TOKEN, path: str = "/v1/gate"):
@@ -359,6 +361,104 @@ class GateTest(unittest.TestCase):
         status, body = self.post(app, GO_BODY, token="secret-token")
         self.assertEqual(body["decision"], "GO")
         self.assertEqual(json.loads(self.log_path.read_text().splitlines()[-1])["caller"], "ada")
+
+    def test_admin_kill_disabled_without_token(self) -> None:
+        app = self.make_app()
+        status, body = app.handle("GET", "/admin/kill", {}, None)
+        self.assertEqual(status, 404)
+        self.assertEqual(body, {"error": "not_found"})
+        status, body = app.handle(
+            "POST",
+            "/admin/kill",
+            {"Authorization": "Bearer anything", "Content-Type": "application/json"},
+            b'{"off":true}',
+        )
+        self.assertEqual(status, 404)
+
+    def test_admin_kill_requires_auth(self) -> None:
+        app = self.make_app(admin_token="admin-secret")
+        status, body = app.handle("GET", "/admin/kill", {}, None)
+        self.assertEqual(status, 401)
+        self.assertEqual(body, {"error": "unauthorized"})
+        status, body = app.handle(
+            "GET",
+            "/admin/kill",
+            {"Authorization": "Bearer wrong"},
+            None,
+        )
+        self.assertEqual(status, 401)
+        # Partner allowlist tokens must not open admin.
+        status, body = app.handle(
+            "GET",
+            "/admin/kill",
+            {"Authorization": f"Bearer {TOKEN}"},
+            None,
+        )
+        self.assertEqual(status, 401)
+
+    def test_admin_kill_engage_and_clear(self) -> None:
+        app = self.make_app(admin_token="admin-secret")
+        headers = {"Authorization": "Bearer admin-secret", "Content-Type": "application/json"}
+        status, body = app.handle("GET", "/admin/kill", headers, None)
+        self.assertEqual(status, 200)
+        self.assertEqual(body["diego_off"], False)
+        self.assertEqual(body["env_off"], False)
+        self.assertEqual(body["file_off"], False)
+        self.assertIsNone(body["changed_at"])
+        self.assertEqual(body["server_time"], "2026-09-30T12:00:00Z")
+
+        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":true}')
+        self.assertEqual(status, 200)
+        self.assertTrue(self.off.is_file())
+        self.assertEqual(body["diego_off"], True)
+        self.assertEqual(body["env_off"], False)
+        self.assertEqual(body["file_off"], True)
+        self.assertEqual(body["changed_at"], "2026-09-30T12:00:00Z")
+        gate_status, gate_body = self.post(app, GO_BODY)
+        self.assertEqual(gate_status, 503)
+        self.assertEqual(gate_body, {"decision": "NO_GO", "fails": ["diego_off"]})
+
+        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":false}')
+        self.assertEqual(status, 200)
+        self.assertFalse(self.off.exists())
+        self.assertEqual(body["diego_off"], False)
+        self.assertEqual(body["file_off"], False)
+        self.assertEqual(body["changed_at"], "2026-09-30T12:00:00Z")
+        self.assertEqual(self.post(app, GO_BODY)[1]["decision"], "GO")
+        status, body = app.handle("GET", "/admin/kill", headers, None)
+        self.assertEqual(status, 200)
+        self.assertEqual(body["last_kill_pass_at"], "2026-09-30T12:00:00Z")
+
+    def test_admin_kill_env_precedence(self) -> None:
+        app = self.make_app(admin_token="admin-secret", env={"ARGENTINE_DIEGO_OFF": "1"})
+        headers = {"Authorization": "Bearer admin-secret", "Content-Type": "application/json"}
+        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":false}')
+        self.assertEqual(status, 200)
+        self.assertFalse(self.off.exists())
+        self.assertEqual(body["file_off"], False)
+        self.assertEqual(body["env_off"], True)
+        self.assertEqual(body["diego_off"], True)
+        gate_status, gate_body = self.post(app, GO_BODY)
+        self.assertEqual(gate_status, 503)
+        self.assertEqual(gate_body["fails"], ["diego_off"])
+
+        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":true}')
+        self.assertEqual(status, 200)
+        self.assertTrue(self.off.is_file())
+        self.assertEqual(body["diego_off"], True)
+        self.assertEqual(body["env_off"], True)
+        self.assertEqual(body["file_off"], True)
+
+    def test_admin_kill_invalid_body(self) -> None:
+        app = self.make_app(admin_token="admin-secret")
+        headers = {"Authorization": "Bearer admin-secret", "Content-Type": "application/json"}
+        status, body = app.handle("POST", "/admin/kill", headers, b'{"off":"yes"}')
+        self.assertEqual(status, 400)
+        self.assertEqual(body, {"error": "invalid_request"})
+        status, body = app.handle("POST", "/admin/kill", headers, b"{}")
+        self.assertEqual(status, 400)
+
+
 
 
 if __name__ == "__main__":
