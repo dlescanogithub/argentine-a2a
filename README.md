@@ -1,3 +1,5 @@
+> **Archived (2026-10-18).** This repository is archived and read-only. It is kept as a historical record and is no longer maintained. A rewritten version with synthetic data, governance and business-strategy documentation is planned; it will be linked here when it exists.
+
 # ArGENTine
 
 [A2A](https://a2a-protocol.org/) v1 checklist gate for Diego Lescano (Head/Director AI track).
